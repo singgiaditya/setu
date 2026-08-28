@@ -124,4 +124,55 @@ class PreferencesStore {
   Future<void> setTerminalFontSize(double size) async {
     await _prefs.setDouble(AppConstants.keyTerminalFontSize, size);
   }
+
+  String get terminalTheme =>
+      _prefs.getString(AppConstants.keyTerminalTheme) ?? 'setu-dark';
+
+  Future<void> setTerminalTheme(String themeId) async {
+    await _prefs.setString(AppConstants.keyTerminalTheme, themeId);
+  }
+
+  String get terminalFontFamily =>
+      _prefs.getString(AppConstants.keyTerminalFontFamily) ?? 'JetBrainsMono';
+
+  Future<void> setTerminalFontFamily(String family) async {
+    await _prefs.setString(AppConstants.keyTerminalFontFamily, family);
+  }
+
+  String get terminalCursorStyle =>
+      _prefs.getString(AppConstants.keyTerminalCursorStyle) ?? 'block';
+
+  Future<void> setTerminalCursorStyle(String style) async {
+    await _prefs.setString(AppConstants.keyTerminalCursorStyle, style);
+  }
+
+  bool get terminalCursorBlink =>
+      _prefs.getBool(AppConstants.keyTerminalCursorBlink) ?? true;
+
+  Future<void> setTerminalCursorBlink(bool blink) async {
+    await _prefs.setBool(AppConstants.keyTerminalCursorBlink, blink);
+  }
+
+  bool get terminalHapticFeedback =>
+      _prefs.getBool(AppConstants.keyTerminalHapticFeedback) ?? true;
+
+  Future<void> setTerminalHapticFeedback(bool enabled) async {
+    await _prefs.setBool(AppConstants.keyTerminalHapticFeedback, enabled);
+  }
+
+  // Saved Snippets JSON
+  List<Map<String, dynamic>> getSavedSnippets() {
+    final raw = _prefs.getString(AppConstants.keySavedSnippets);
+    if (raw == null || raw.isEmpty) return [];
+    try {
+      final list = jsonDecode(raw) as List;
+      return list.map((e) => Map<String, dynamic>.from(e)).toList();
+    } catch (_) {
+      return [];
+    }
+  }
+
+  Future<void> saveSnippets(List<Map<String, dynamic>> snippets) async {
+    await _prefs.setString(AppConstants.keySavedSnippets, jsonEncode(snippets));
+  }
 }

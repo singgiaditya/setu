@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
+import '../../core/terminal/terminal_theme_data.dart';
 import '../../core/theme/theme_manager.dart';
 import '../../providers/storage_provider.dart';
+import '../../providers/terminal_provider.dart';
+import '../terminal/widgets/terminal_snippets_sheet.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -16,7 +19,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   late int _editorTabSize;
   late bool _editorLineNumbers;
   late bool _editorWordWrap;
-  late double _terminalFontSize;
   late bool _biometricEnabled;
 
   @override
@@ -27,8 +29,153 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     _editorTabSize = prefs.editorTabSize;
     _editorLineNumbers = prefs.editorLineNumbers;
     _editorWordWrap = prefs.editorWordWrap;
-    _terminalFontSize = prefs.terminalFontSize;
     _biometricEnabled = prefs.isBiometricEnabled;
+  }
+
+  void _showTerminalThemePicker(BuildContext context, WidgetRef ref) {
+    final colors = ref.read(setuColorsProvider);
+    final typography = ref.read(setuTypographyProvider);
+    final currentThemeId = ref.read(terminalSettingsProvider).themeId;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (ctx) => Container(
+        height: MediaQuery.of(ctx).size.height * 0.65,
+        decoration: BoxDecoration(
+          color: colors.surface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+          border: Border(top: BorderSide(color: colors.border)),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        child: Column(
+          children: [
+            Container(
+              width: 36,
+              height: 4,
+              decoration: BoxDecoration(
+                color: colors.foregroundMuted.withValues(alpha: 0.4),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const Gap(12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.palette_outlined, color: colors.primary, size: 22),
+                    const Gap(8),
+                    Text('Terminal Theme', style: typography.titleMedium),
+                  ],
+                ),
+                IconButton(
+                  icon: Icon(Icons.close_rounded, color: colors.foregroundMuted),
+                  onPressed: () => Navigator.of(ctx).pop(),
+                ),
+              ],
+            ),
+            const Gap(12),
+            Expanded(
+              child: ListView.separated(
+                itemCount: SetuTerminalTheme.allThemes.length,
+                separatorBuilder: (_, _) => const Gap(8),
+                itemBuilder: (context, index) {
+                  final theme = SetuTerminalTheme.allThemes[index];
+                  final isSelected = theme.id == currentThemeId;
+
+                  return Material(
+                    color: colors.surfaceVariant.withValues(alpha: isSelected ? 0.8 : 0.4),
+                    borderRadius: BorderRadius.circular(10),
+                    child: InkWell(
+                      onTap: () {
+                        ref.read(terminalSettingsProvider.notifier).setTheme(theme.id);
+                        Navigator.of(ctx).pop();
+                      },
+                      borderRadius: BorderRadius.circular(10),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: isSelected ? colors.primary : colors.border,
+                            width: isSelected ? 1.5 : 1,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            // Theme Color Palette Swatch
+                            Container(
+                              width: 38,
+                              height: 38,
+                              decoration: BoxDecoration(
+                                color: theme.background,
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(color: colors.border),
+                              ),
+                              child: Center(
+                                child: Container(
+                                  width: 14,
+                                  height: 14,
+                                  decoration: BoxDecoration(
+                                    color: theme.cursor,
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const Gap(14),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    theme.name,
+                                    style: typography.titleSmall.copyWith(
+                                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                    ),
+                                  ),
+                                  const Gap(4),
+                                  Row(
+                                    children: [
+                                      _buildColorDot(theme.red),
+                                      _buildColorDot(theme.green),
+                                      _buildColorDot(theme.yellow),
+                                      _buildColorDot(theme.blue),
+                                      _buildColorDot(theme.magenta),
+                                      _buildColorDot(theme.cyan),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                            if (isSelected)
+                              Icon(Icons.check_circle_rounded, color: colors.primary, size: 22),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildColorDot(Color color) {
+    return Container(
+      width: 10,
+      height: 10,
+      margin: const EdgeInsets.only(right: 4),
+      decoration: BoxDecoration(
+        color: color,
+        shape: BoxShape.circle,
+      ),
+    );
   }
 
   @override
@@ -36,6 +183,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final colors = ref.watch(setuColorsProvider);
     final typography = ref.watch(setuTypographyProvider);
     final prefs = ref.read(preferencesStoreProvider);
+    final terminalSettings = ref.watch(terminalSettingsProvider);
 
     return Scaffold(
       backgroundColor: colors.background,
@@ -249,6 +397,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           _buildSettingsCard(
             colors: colors,
             children: [
+              // Terminal Theme
+              ListTile(
+                leading: Icon(Icons.palette_outlined, color: colors.primary, size: 22),
+                title: Text('Terminal Color Theme', style: typography.bodyMedium),
+                subtitle: Text(terminalSettings.theme.name, style: typography.bodySmall),
+                trailing: const Icon(Icons.chevron_right_rounded),
+                onTap: () => _showTerminalThemePicker(context, ref),
+              ),
+              _buildDivider(colors),
+
               // Terminal Font Size Slider
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
@@ -260,7 +418,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       children: [
                         Text('Font Size', style: typography.bodyMedium),
                         Text(
-                          '${_terminalFontSize.toStringAsFixed(1)} pt',
+                          '${terminalSettings.fontSize.toStringAsFixed(1)} pt',
                           style: typography.code.copyWith(
                             color: colors.primary,
                             fontWeight: FontWeight.w600,
@@ -277,18 +435,93 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         overlayColor: colors.primary.withValues(alpha: 0.2),
                       ),
                       child: Slider(
-                        value: _terminalFontSize,
-                        min: 10.0,
-                        max: 20.0,
-                        divisions: 20,
+                        value: terminalSettings.fontSize,
+                        min: 9.0,
+                        max: 24.0,
+                        divisions: 30,
                         onChanged: (val) {
-                          setState(() => _terminalFontSize = val);
-                          prefs.setTerminalFontSize(val);
+                          ref.read(terminalSettingsProvider.notifier).setFontSize(
+                                double.parse(val.toStringAsFixed(1)),
+                              );
                         },
                       ),
                     ),
                   ],
                 ),
+              ),
+              _buildDivider(colors),
+
+              // Haptic Feedback Switch
+              SwitchListTile(
+                secondary: Icon(Icons.vibration_rounded, color: colors.accent, size: 22),
+                title: Text('Haptic Feedback', style: typography.bodyMedium),
+                subtitle: Text('Vibrate on keyboard toolbar key taps', style: typography.bodySmall),
+                value: terminalSettings.hapticFeedback,
+                activeTrackColor: colors.primary,
+                onChanged: (val) {
+                  ref.read(terminalSettingsProvider.notifier).setHapticFeedback(val);
+                },
+              ),
+              _buildDivider(colors),
+
+              // Cursor Style Segmented Button
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Cursor Style', style: typography.bodyMedium),
+                        Text('Terminal cursor shape', style: typography.bodySmall),
+                      ],
+                    ),
+                    SegmentedButton<String>(
+                      segments: const [
+                        ButtonSegment(value: 'block', label: Text('Block')),
+                        ButtonSegment(value: 'underline', label: Text('Line')),
+                        ButtonSegment(value: 'bar', label: Text('Bar')),
+                      ],
+                      selected: {terminalSettings.cursorStyle},
+                      onSelectionChanged: (newSelection) {
+                        ref.read(terminalSettingsProvider.notifier).setCursorStyle(newSelection.first);
+                      },
+                      style: ButtonStyle(
+                        visualDensity: VisualDensity.compact,
+                        backgroundColor: WidgetStateProperty.resolveWith((states) {
+                          if (states.contains(WidgetState.selected)) {
+                            return colors.primary.withValues(alpha: 0.2);
+                          }
+                          return colors.surfaceVariant;
+                        }),
+                        foregroundColor: WidgetStateProperty.resolveWith((states) {
+                          if (states.contains(WidgetState.selected)) {
+                            return colors.primary;
+                          }
+                          return colors.foregroundMuted;
+                        }),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              _buildDivider(colors),
+
+              // Snippets Manager Tile
+              ListTile(
+                leading: Icon(Icons.bolt_rounded, color: colors.warning, size: 22),
+                title: Text('Snippets & Quick Actions', style: typography.bodyMedium),
+                subtitle: Text('Manage CLI command presets & macros', style: typography.bodySmall),
+                trailing: const Icon(Icons.chevron_right_rounded),
+                onTap: () {
+                  showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    backgroundColor: Colors.transparent,
+                    builder: (ctx) => const TerminalSnippetsSheet(session: null),
+                  );
+                },
               ),
             ],
           ),

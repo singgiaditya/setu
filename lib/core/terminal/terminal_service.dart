@@ -37,6 +37,7 @@ class TerminalService {
     String? initialCommand,
     int width = 80,
     int height = 25,
+    String? tagColor,
   }) async {
     final terminal = Terminal(maxLines: 5000);
     final id = const Uuid().v4();
@@ -50,6 +51,8 @@ class TerminalService {
         name: sessionName,
         terminal: terminal,
         createdAt: DateTime.now(),
+        tagColor: tagColor,
+        status: TerminalSessionStatus.disconnected,
       );
       _sessions[id] = offlineSession;
       _activeSessionId = id;
@@ -68,6 +71,8 @@ class TerminalService {
         terminal: terminal,
         sshSession: shell,
         createdAt: DateTime.now(),
+        tagColor: tagColor,
+        status: TerminalSessionStatus.connected,
       );
 
       _sessions[id] = item;
@@ -80,10 +85,54 @@ class TerminalService {
         name: sessionName,
         terminal: terminal,
         createdAt: DateTime.now(),
+        tagColor: tagColor,
+        status: TerminalSessionStatus.error,
       );
       _sessions[id] = errItem;
       _activeSessionId = id;
       return errItem;
+    }
+  }
+
+  Future<bool> reconnectSession(
+    String id,
+    SshService sshService, {
+    int width = 80,
+    int height = 25,
+  }) async {
+    final session = _sessions[id];
+    if (session == null || !sshService.isConnected) return false;
+
+    session.terminal.write('\r\n\x1b[36m[Reconnecting to workstation...]\x1b[0m\r\n');
+    try {
+      final shell = await sshService.createShell(width: width, height: height);
+      if (shell == null) return false;
+
+      if (session.isTmux && session.tmuxSessionName != null) {
+        final cmd = 'tmux new-session -A -s "${session.tmuxSessionName}"';
+        shell.write(utf8.encode('$cmd\n'));
+      }
+
+      session.attachShell(shell);
+      session.terminal.write('\x1b[32m[Session reconnected successfully]\x1b[0m\r\n\r\n');
+      return true;
+    } catch (e) {
+      session.terminal.write('\x1b[31m[Reconnection failed: $e]\x1b[0m\r\n');
+      return false;
+    }
+  }
+
+  void renameSession(String id, String newName) {
+    final session = _sessions[id];
+    if (session != null && newName.trim().isNotEmpty) {
+      session.name = newName.trim();
+    }
+  }
+
+  void setSessionTagColor(String id, String? color) {
+    final session = _sessions[id];
+    if (session != null) {
+      session.tagColor = color;
     }
   }
 
@@ -94,14 +143,60 @@ class TerminalService {
     int height = 25,
   }) async {
     final cmd = 'tmux new-session -A -s "$tmuxSessionName"';
-    final session = await createSession(
-      sshService,
-      name: 'tmux:$tmuxSessionName',
-      initialCommand: cmd,
-      width: width,
-      height: height,
-    );
-    return session;
+    final terminal = Terminal(maxLines: 5000);
+    final id = const Uuid().v4();
+
+    if (!sshService.isConnected) {
+      terminal.write('\x1b[33m[SETU] Not connected to workstation.\x1b[0m\r\n');
+      final offlineSession = TerminalSessionItem(
+        id: id,
+        name: 'tmux:$tmuxSessionName',
+        terminal: terminal,
+        isTmux: true,
+        tmuxSessionName: tmuxSessionName,
+        createdAt: DateTime.now(),
+        status: TerminalSessionStatus.disconnected,
+      );
+      _sessions[id] = offlineSession;
+      _activeSessionId = id;
+      return offlineSession;
+    }
+
+    try {
+      final shell = await sshService.createShell(width: width, height: height);
+      if (shell != null) {
+        shell.write(utf8.encode('$cmd\n'));
+      }
+
+      final item = TerminalSessionItem(
+        id: id,
+        name: 'tmux:$tmuxSessionName',
+        terminal: terminal,
+        sshSession: shell,
+        isTmux: true,
+        tmuxSessionName: tmuxSessionName,
+        createdAt: DateTime.now(),
+        status: TerminalSessionStatus.connected,
+      );
+
+      _sessions[id] = item;
+      _activeSessionId = id;
+      return item;
+    } catch (e) {
+      terminal.write('\x1b[31m[Failed to attach tmux: $e]\x1b[0m\r\n');
+      final errItem = TerminalSessionItem(
+        id: id,
+        name: 'tmux:$tmuxSessionName',
+        terminal: terminal,
+        isTmux: true,
+        tmuxSessionName: tmuxSessionName,
+        createdAt: DateTime.now(),
+        status: TerminalSessionStatus.error,
+      );
+      _sessions[id] = errItem;
+      _activeSessionId = id;
+      return errItem;
+    }
   }
 
   Future<List<TmuxSessionInfo>> listTmuxSessions(SshService sshService) async {

@@ -3,14 +3,24 @@ import 'dart:convert';
 import 'package:dartssh2/dartssh2.dart';
 import 'package:xterm/xterm.dart';
 
+enum TerminalSessionStatus {
+  connected,
+  disconnected,
+  error,
+}
+
 class TerminalSessionItem {
   final String id;
-  final String name;
+  String name;
   final Terminal terminal;
-  final SSHSession? sshSession;
+  SSHSession? sshSession;
   final bool isTmux;
   final String? tmuxSessionName;
   final DateTime createdAt;
+  String? tagColor;
+  TerminalSessionStatus status;
+  void Function(TerminalSessionStatus status)? onStatusChange;
+
   StreamSubscription? _stdoutSub;
   StreamSubscription? _stderrSub;
 
@@ -22,16 +32,29 @@ class TerminalSessionItem {
     this.isTmux = false,
     this.tmuxSessionName,
     required this.createdAt,
-  }) {
+    this.tagColor,
+    TerminalSessionStatus? status,
+    this.onStatusChange,
+  }) : status = status ?? (sshSession != null ? TerminalSessionStatus.connected : TerminalSessionStatus.disconnected) {
     _initWiring();
   }
 
   void _initWiring() {
-    if (sshSession == null) return;
+    if (sshSession == null) {
+      status = TerminalSessionStatus.disconnected;
+      return;
+    }
+
+    status = TerminalSessionStatus.connected;
 
     // Terminal keystrokes -> SSH Session stdin
     terminal.onOutput = (data) {
       sshSession?.write(utf8.encode(data));
+    };
+
+    // Terminal resize -> SSH Session PTY resize
+    terminal.onResize = (width, height, pixelWidth, pixelHeight) {
+      sshSession?.resizeTerminal(width, height, pixelWidth, pixelHeight);
     };
 
     // SSH Session stdout -> Terminal display
@@ -40,10 +63,14 @@ class TerminalSessionItem {
         terminal.write(utf8.decode(data, allowMalformed: true));
       },
       onError: (err) {
-        terminal.write('\r\n[Session stream error: $err]\r\n');
+        terminal.write('\r\n\x1b[31m[Session stream error: $err]\x1b[0m\r\n');
+        status = TerminalSessionStatus.error;
+        onStatusChange?.call(status);
       },
       onDone: () {
-        terminal.write('\r\n[Session ended]\r\n');
+        terminal.write('\r\n\x1b[33m[Session ended]\x1b[0m\r\n');
+        status = TerminalSessionStatus.disconnected;
+        onStatusChange?.call(status);
       },
     );
 
@@ -51,6 +78,15 @@ class TerminalSessionItem {
     _stderrSub = sshSession?.stderr.listen((data) {
       terminal.write(utf8.decode(data, allowMalformed: true));
     });
+  }
+
+  void attachShell(SSHSession newShell) {
+    _stdoutSub?.cancel();
+    _stderrSub?.cancel();
+    sshSession?.close();
+    sshSession = newShell;
+    _initWiring();
+    onStatusChange?.call(status);
   }
 
   void resize(int cols, int rows) {
@@ -74,5 +110,6 @@ class TerminalSessionItem {
     _stdoutSub?.cancel();
     _stderrSub?.cancel();
     sshSession?.close();
+    status = TerminalSessionStatus.disconnected;
   }
 }

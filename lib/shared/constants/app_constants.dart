@@ -24,6 +24,11 @@ class AppConstants {
   static const String keyTerminalFontSize = 'terminal_font_size';
   static const String keyTerminalScrollback = 'terminal_scrollback';
   static const String keyTerminalCursorStyle = 'terminal_cursor_style';
+  static const String keyTerminalTheme = 'terminal_theme';
+  static const String keyTerminalFontFamily = 'terminal_font_family';
+  static const String keyTerminalCursorBlink = 'terminal_cursor_blink';
+  static const String keyTerminalHapticFeedback = 'terminal_haptic_feedback';
+  static const String keySavedSnippets = 'saved_terminal_snippets';
 
   // Secure Storage Keys prefix
   static const String secureKeyPrefix = 'setu_ssh_key_';

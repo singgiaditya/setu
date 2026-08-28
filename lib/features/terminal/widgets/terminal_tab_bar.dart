@@ -11,6 +11,7 @@ class TerminalTabBar extends StatelessWidget {
   final SetuTypography typography;
   final Function(String id) onSelectSession;
   final Function(String id) onCloseSession;
+  final Function(String id, String newName)? onRenameSession;
   final VoidCallback onNewSession;
 
   const TerminalTabBar({
@@ -21,8 +22,70 @@ class TerminalTabBar extends StatelessWidget {
     required this.typography,
     required this.onSelectSession,
     required this.onCloseSession,
+    this.onRenameSession,
     required this.onNewSession,
   });
+
+  void _showRenameDialog(BuildContext context, TerminalSessionItem session) {
+    final controller = TextEditingController(text: session.name);
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: colors.surface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(color: colors.border),
+        ),
+        title: Row(
+          children: [
+            Icon(Icons.edit_note_rounded, color: colors.primary, size: 22),
+            const Gap(8),
+            Text('Rename Session', style: typography.titleMedium),
+          ],
+        ),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          style: typography.bodyMedium,
+          decoration: const InputDecoration(
+            labelText: 'Session Name',
+            hintText: 'e.g. backend-logs, runner, dev',
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text('Cancel', style: TextStyle(color: colors.foregroundMuted)),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              final newName = controller.text.trim();
+              if (newName.isNotEmpty) {
+                onRenameSession?.call(session.id, newName);
+              }
+              Navigator.of(ctx).pop();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: colors.primary,
+              foregroundColor: const Color(0xFF0D1117),
+            ),
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Color _getStatusColor(TerminalSessionStatus status) {
+    switch (status) {
+      case TerminalSessionStatus.connected:
+        return colors.success;
+      case TerminalSessionStatus.disconnected:
+        return colors.warning;
+      case TerminalSessionStatus.error:
+        return colors.error;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,9 +106,11 @@ class TerminalTabBar extends StatelessWidget {
               itemBuilder: (context, index) {
                 final session = sessions[index];
                 final isActive = activeSession?.id == session.id;
+                final statusColor = _getStatusColor(session.status);
 
                 return InkWell(
                   onTap: () => onSelectSession(session.id),
+                  onLongPress: () => _showRenameDialog(context, session),
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12),
                     decoration: BoxDecoration(
@@ -61,11 +126,12 @@ class TerminalTabBar extends StatelessWidget {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
+                        // Status dot
                         Container(
                           width: 6,
                           height: 6,
                           decoration: BoxDecoration(
-                            color: isActive ? colors.primary : colors.foregroundMuted,
+                            color: statusColor,
                             shape: BoxShape.circle,
                           ),
                         ),
