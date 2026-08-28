@@ -18,12 +18,14 @@ class ThemeState {
         typography = SetuTypography(colors);
 }
 
-class ThemeNotifier extends StateNotifier<ThemeState> {
-  ThemeNotifier()
-      : super(ThemeState(
-          themeName: 'Dark',
-          colors: darkThemeColors,
-        ));
+class ThemeNotifier extends Notifier<ThemeState> {
+  @override
+  ThemeState build() {
+    return ThemeState(
+      themeName: 'Dark',
+      colors: darkThemeColors,
+    );
+  }
 
   void setTheme(String name, SetuColors colors) {
     state = ThemeState(themeName: name, colors: colors);
@@ -34,9 +36,7 @@ class ThemeNotifier extends StateNotifier<ThemeState> {
   }
 }
 
-final themeProvider = StateNotifierProvider<ThemeNotifier, ThemeState>((ref) {
-  return ThemeNotifier();
-});
+final themeProvider = NotifierProvider<ThemeNotifier, ThemeState>(ThemeNotifier.new);
 
 final setuColorsProvider = Provider<SetuColors>((ref) {
   return ref.watch(themeProvider).colors;
