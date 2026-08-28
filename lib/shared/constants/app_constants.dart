@@ -1,7 +1,7 @@
 class AppConstants {
   static const String appName = 'SETU';
   static const String appTagline = 'Your Machine, Anywhere.';
-  static const String appVersion = '0.1.0';
+  static const String appVersion = '0.2.0';
 
   // Defaults
   static const int defaultSshPort = 22;

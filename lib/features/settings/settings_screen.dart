@@ -5,6 +5,7 @@ import '../../core/terminal/terminal_theme_data.dart';
 import '../../core/theme/theme_manager.dart';
 import '../../providers/storage_provider.dart';
 import '../../providers/terminal_provider.dart';
+import '../../shared/constants/app_constants.dart';
 import '../terminal/widgets/terminal_snippets_sheet.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
@@ -568,7 +569,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 ),
                 title: Text('SETU', style: typography.titleSmall.copyWith(fontWeight: FontWeight.bold)),
                 subtitle: Text('Your Machine, Anywhere.', style: typography.bodySmall),
-                trailing: Text('v0.1.0', style: typography.code.copyWith(color: colors.foregroundMuted)),
+                trailing: Text('v${AppConstants.appVersion}', style: typography.code.copyWith(color: colors.foregroundMuted)),
               ),
               _buildDivider(colors),
               ListTile(
