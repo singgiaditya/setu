@@ -14,7 +14,6 @@ class SetuScaffoldWithNavBar extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = ref.watch(setuColorsProvider);
-    final typography = ref.watch(setuTypographyProvider);
 
     return Scaffold(
       backgroundColor: colors.background,

@@ -5,7 +5,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:setu/core/ssh/ssh_config.dart';
 import 'package:setu/core/storage/preferences_store.dart';
 import 'package:setu/providers/storage_provider.dart';
-import 'package:setu/providers/ssh_provider.dart';
 import 'package:setu/features/connection/connection_screen.dart';
 
 void main() {

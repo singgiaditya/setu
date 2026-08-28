@@ -5,6 +5,10 @@ import 'theme_colors.dart';
 import 'theme_typography.dart';
 import 'themes/dark_theme.dart';
 
+export 'app_theme.dart';
+export 'theme_colors.dart';
+export 'theme_typography.dart';
+
 class ThemeState {
   final String themeName;
   final SetuColors colors;

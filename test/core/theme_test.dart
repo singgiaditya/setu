@@ -12,24 +12,24 @@ void main() {
 
   group('SetuTheme Tests', () {
     test('Dark theme colors have required fields', () {
-      expect(darkThemeColors.background.value, isNotNull);
-      expect(darkThemeColors.surface.value, isNotNull);
-      expect(darkThemeColors.primary.value, isNotNull);
-      expect(darkThemeColors.terminalBackground.value, isNotNull);
-      expect(darkThemeColors.editorBackground.value, isNotNull);
+      expect(darkThemeColors.background.toARGB32(), isNonZero);
+      expect(darkThemeColors.surface.toARGB32(), isNonZero);
+      expect(darkThemeColors.primary.toARGB32(), isNonZero);
+      expect(darkThemeColors.terminalBackground.toARGB32(), isNonZero);
+      expect(darkThemeColors.editorBackground.toARGB32(), isNonZero);
     });
 
     test('SetuColors serialization & deserialization works', () {
       final json = darkThemeColors.toJson();
       expect(json['background'], startsWith('#'));
       final restored = SetuColors.fromJson(json);
-      expect(restored.background.value, equals(darkThemeColors.background.value));
-      expect(restored.primary.value, equals(darkThemeColors.primary.value));
+      expect(restored.background.toARGB32(), equals(darkThemeColors.background.toARGB32()));
+      expect(restored.primary.toARGB32(), equals(darkThemeColors.primary.toARGB32()));
     });
 
     test('SetuTheme builds valid ThemeData', () {
       final theme = SetuTheme.dark();
-      expect(theme.brightness, equals(androidxBrightnessDark));
+      expect(theme.brightness, equals(Brightness.dark));
       expect(theme.scaffoldBackgroundColor, equals(darkThemeColors.background));
     });
 
@@ -83,9 +83,3 @@ void main() {
     });
   });
 }
-
-const androidxBrightnessDark = androidx_brightness_dark;
-const androidx_brightness_dark = androidx_Brightness_Dark;
-const androidx_Brightness_Dark = androidx_brightness_dark_enum;
-const androidx_brightness_dark_enum = androidx_b_dark;
-const androidx_b_dark = Brightness.dark;

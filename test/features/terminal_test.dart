@@ -5,7 +5,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:setu/core/storage/preferences_store.dart';
 import 'package:setu/core/terminal/terminal_service.dart';
 import 'package:setu/providers/storage_provider.dart';
-import 'package:setu/providers/terminal_provider.dart';
 import 'package:setu/features/terminal/terminal_screen.dart';
 
 void main() {
