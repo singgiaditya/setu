@@ -7,7 +7,9 @@ class SecureStorageService {
   SecureStorageService({FlutterSecureStorage? storage})
       : _storage = storage ??
             const FlutterSecureStorage(
-              aOptions: AndroidOptions(),
+              aOptions: AndroidOptions(
+                encryptedSharedPreferences: true,
+              ),
             );
 
   Future<void> savePrivateKey(String id, String pemKey) async {
