@@ -21,7 +21,7 @@ void main() {
       ),
     );
 
-    expect(find.text('On|Bed'), findsWidgets);
+    expect(find.text('ONBED'), findsWidgets);
     await tester.pump(const Duration(milliseconds: 2000));
     await tester.pumpAndSettle();
   });

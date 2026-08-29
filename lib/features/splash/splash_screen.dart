@@ -89,50 +89,37 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with SingleTickerPr
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Logo Icon
-                Container(
-                  width: 90,
-                  height: 90,
-                  decoration: BoxDecoration(
-                    color: colors.surface,
-                    borderRadius: BorderRadius.circular(24),
-                    border: Border.all(color: colors.border, width: 1.5),
-                    boxShadow: [
-                      BoxShadow(
-                        color: colors.primary.withValues(alpha: 0.18),
-                        blurRadius: 36,
-                        spreadRadius: 6,
-                      ),
-                    ],
-                  ),
-                  child: Icon(
-                    Icons.terminal_rounded,
-                    size: 46,
-                    color: colors.primary,
-                  ),
+                // Logo Mark (Phone on Bed with Terminal Prompt)
+                Image.asset(
+                  'assets/images/logo_mark_512.png',
+                  width: 110,
+                  height: 110,
+                  fit: BoxFit.contain,
                 ),
-                const Gap(24),
+                const Gap(20),
 
-                // Brand Name (Space Grotesk)
+                // Brand Name
                 Text(
-                  'On|Bed',
+                  'ONBED',
                   style: typography.brand.copyWith(
-                    fontSize: 34,
-                    letterSpacing: 3.0,
+                    fontSize: 36,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 3.5,
                     color: colors.foreground,
                   ),
                 ),
-                const Gap(8),
+                const Gap(6),
 
                 // Tagline
                 Text(
-                  'Your Machine, Even in Bed.',
+                  'Your Machine. From Bed.',
                   style: typography.bodyMedium.copyWith(
                     color: colors.foregroundMuted,
                     letterSpacing: 0.5,
+                    fontSize: 15,
                   ),
                 ),
-                const Gap(48),
+                const Gap(40),
 
                 // Subtle Loading Spinner
                 SizedBox(

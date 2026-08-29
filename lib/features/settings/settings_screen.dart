@@ -580,17 +580,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             colors: colors,
             children: [
               ListTile(
-                leading: Container(
-                  width: 36,
-                  height: 36,
-                  decoration: BoxDecoration(
-                    color: colors.primary.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  alignment: Alignment.center,
-                  child: Text(
-                    'O',
-                    style: typography.brandSmall.copyWith(color: colors.primary),
+                leading: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.asset(
+                    'assets/images/app_icon.png',
+                    width: 36,
+                    height: 36,
+                    fit: BoxFit.cover,
                   ),
                 ),
                 title: Text('On|Bed', style: typography.titleSmall.copyWith(fontWeight: FontWeight.bold)),
