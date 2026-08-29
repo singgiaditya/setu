@@ -172,6 +172,18 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                       ),
                     ],
                   ),
+                  const Gap(12),
+                  TextButton.icon(
+                    onPressed: () => context.push('/setup-guide'),
+                    icon: Icon(Icons.help_outline_rounded, size: 14, color: colors.foregroundMuted),
+                    label: Text(
+                      'Need help setting up your Linux machine? View Setup Guide',
+                      style: typography.bodySmall.copyWith(
+                        color: colors.foregroundMuted,
+                        fontSize: 11,
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),

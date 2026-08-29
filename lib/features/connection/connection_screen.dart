@@ -5,6 +5,7 @@ import 'package:gap/gap.dart';
 import '../../core/ssh/ssh_config.dart';
 import '../../core/theme/theme_manager.dart';
 import '../../providers/ssh_provider.dart';
+import '../onboarding/widgets/feature_tour_sheet.dart';
 import 'widgets/connection_form_dialog.dart';
 import 'widgets/connection_profile_card.dart';
 import 'widgets/connection_status_indicator.dart';
@@ -106,6 +107,11 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
         ),
         actions: [
           IconButton(
+            icon: Icon(Icons.help_outline_rounded, color: colors.foregroundMuted),
+            onPressed: () => context.push('/setup-guide'),
+            tooltip: 'Linux Setup Guide',
+          ),
+          IconButton(
             icon: Icon(Icons.add_rounded, color: colors.primary),
             onPressed: () => _openForm(),
             tooltip: 'Add Workstation',
@@ -149,9 +155,9 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
             const Gap(12),
 
             // Profiles List or Empty State
-            if (profiles.isEmpty)
+            if (profiles.isEmpty) ...[
               Container(
-                padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 20),
+                padding: const EdgeInsets.symmetric(vertical: 36, horizontal: 20),
                 decoration: BoxDecoration(
                   color: colors.surface,
                   borderRadius: BorderRadius.circular(14),
@@ -159,27 +165,104 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
                 ),
                 child: Column(
                   children: [
-                    Icon(Icons.computer_rounded, size: 48, color: colors.foregroundMuted),
-                    const Gap(14),
+                    Icon(Icons.computer_rounded, size: 44, color: colors.foregroundMuted),
+                    const Gap(12),
                     Text(
                       'No Workstations Configured',
                       style: typography.headlineSmall,
                     ),
-                    const Gap(8),
+                    const Gap(6),
                     Text(
-                      'Add your Linux PC or Tailscale device to start coding remotely.',
+                      'Tambahkan laptop/PC Linux Anda atau perangkat Tailscale untuk mulai remote development.',
                       style: typography.bodyMedium.copyWith(color: colors.foregroundMuted),
                       textAlign: TextAlign.center,
                     ),
-                    const Gap(20),
+                    const Gap(16),
                     ElevatedButton.icon(
                       onPressed: () => _openForm(),
                       icon: const Icon(Icons.add_rounded, size: 18),
                       label: const Text('Add Workstation'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: colors.primary,
+                        foregroundColor: const Color(0xFF0D1117),
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                      ),
                     ),
                   ],
                 ),
-              )
+              ),
+              const Gap(14),
+
+              // Linux Setup Guide Action Card
+              Material(
+                color: colors.surface,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                  side: BorderSide(color: colors.primary.withValues(alpha: 0.3)),
+                ),
+                child: InkWell(
+                  onTap: () => context.push('/setup-guide'),
+                  borderRadius: BorderRadius.circular(14),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: colors.primary.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          alignment: Alignment.center,
+                          child: Icon(Icons.menu_book_rounded, color: colors.primary, size: 20),
+                        ),
+                        const Gap(14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Panduan Setup Komputer Linux',
+                                style: typography.titleSmall.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: colors.foreground,
+                                ),
+                              ),
+                              const Gap(2),
+                              Text(
+                                'Langkah install OpenSSH, service systemd, & Tailscale VPN.',
+                                style: typography.bodySmall.copyWith(
+                                  color: colors.foregroundMuted,
+                                  fontSize: 11,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Icon(Icons.arrow_forward_ios_rounded, size: 14, color: colors.primary),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              const Gap(12),
+
+              // Feature Tour Link
+              Center(
+                child: TextButton.icon(
+                  onPressed: () => FeatureTourSheet.show(context, colors, typography),
+                  icon: Icon(Icons.explore_outlined, size: 16, color: colors.accent),
+                  label: Text(
+                    'Jelajahi Panduan Fitur SETU',
+                    style: typography.labelMedium.copyWith(
+                      color: colors.accent,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+            ]
             else
               ...profiles.map((profile) {
                 final isConnected = sshService.isConnected && activeProfile?.id == profile.id;

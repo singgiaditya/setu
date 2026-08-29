@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
+import 'package:go_router/go_router.dart';
 import '../../core/terminal/terminal_theme_data.dart';
 import '../../core/theme/theme_manager.dart';
 import '../../providers/storage_provider.dart';
 import '../../providers/terminal_provider.dart';
 import '../../shared/constants/app_constants.dart';
+import '../onboarding/widgets/feature_tour_sheet.dart';
 import '../terminal/widgets/terminal_snippets_sheet.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
@@ -543,6 +545,30 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   setState(() => _biometricEnabled = val);
                   prefs.setBiometricEnabled(val);
                 },
+              ),
+            ],
+          ),
+          const Gap(24),
+
+          // Section: Help & Guides
+          _buildSectionHeader('HELP & GUIDES', colors, typography),
+          _buildSettingsCard(
+            colors: colors,
+            children: [
+              ListTile(
+                leading: Icon(Icons.menu_book_rounded, color: colors.primary, size: 22),
+                title: Text('Linux Workstation Setup Guide', style: typography.bodyMedium),
+                subtitle: Text('Panduan setup OpenSSH, Tailscale, & firewall', style: typography.bodySmall),
+                trailing: const Icon(Icons.chevron_right_rounded),
+                onTap: () => context.push('/setup-guide'),
+              ),
+              _buildDivider(colors),
+              ListTile(
+                leading: Icon(Icons.explore_outlined, color: colors.accent, size: 22),
+                title: Text('App Feature Tour', style: typography.bodyMedium),
+                subtitle: Text('Putar ulang panduan fitur utama SETU', style: typography.bodySmall),
+                trailing: const Icon(Icons.chevron_right_rounded),
+                onTap: () => FeatureTourSheet.show(context, colors, typography),
               ),
             ],
           ),

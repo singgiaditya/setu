@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../features/splash/splash_screen.dart';
 import '../../features/onboarding/onboarding_screen.dart';
 import '../../features/connection/connection_screen.dart';
+import '../../features/guide/setup_guide_screen.dart';
 import '../../features/home/home_screen.dart';
 import '../../features/explorer/explorer_screen.dart';
 import '../../features/terminal/terminal_screen.dart';
@@ -31,6 +32,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/connect',
         builder: (context, state) => const ConnectionScreen(),
+      ),
+      GoRoute(
+        path: '/setup-guide',
+        builder: (context, state) => const SetupGuideScreen(),
       ),
       GoRoute(
         path: '/workspace/:id',

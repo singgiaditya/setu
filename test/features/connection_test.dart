@@ -40,7 +40,7 @@ void main() {
   });
 
   group('ConnectionScreen Widget Tests', () {
-    testWidgets('Renders ConnectionScreen with default workstation profile',
+    testWidgets('Renders ConnectionScreen with empty state and setup guide banner',
         (WidgetTester tester) async {
       SharedPreferences.setMockInitialValues({});
       final prefs = await PreferencesStore.init();
@@ -61,7 +61,9 @@ void main() {
       expect(find.text('SETU'), findsOneWidget);
       expect(find.text('Workstations'), findsOneWidget);
       expect(find.text('Saved Workstations'), findsOneWidget);
-      expect(find.text('Add Workstation'), findsWidgets);
+      expect(find.text('No Workstations Configured'), findsOneWidget);
+      expect(find.text('Panduan Setup Komputer Linux'), findsOneWidget);
+      expect(find.text('Jelajahi Panduan Fitur SETU'), findsOneWidget);
     });
   });
 }
