@@ -5,23 +5,35 @@ import 'theme_typography.dart';
 import 'themes/dark_theme.dart';
 
 class SetuTheme {
-  static ThemeData buildTheme(SetuColors colors) {
+  static ThemeData buildTheme(SetuColors colors, {bool isDark = true}) {
     final typography = SetuTypography(colors);
+    final brightness = isDark ? Brightness.dark : Brightness.light;
 
     return ThemeData(
       useMaterial3: true,
-      brightness: Brightness.dark,
+      brightness: brightness,
       scaffoldBackgroundColor: colors.background,
-      colorScheme: ColorScheme.dark(
-        primary: colors.primary,
-        secondary: colors.secondary,
-        surface: colors.surface,
-        error: colors.error,
-        onPrimary: colors.background,
-        onSecondary: colors.foreground,
-        onSurface: colors.foreground,
-        onError: colors.foreground,
-      ),
+      colorScheme: isDark
+          ? ColorScheme.dark(
+              primary: colors.primary,
+              secondary: colors.secondary,
+              surface: colors.surface,
+              error: colors.error,
+              onPrimary: colors.background,
+              onSecondary: colors.foreground,
+              onSurface: colors.foreground,
+              onError: colors.foreground,
+            )
+          : ColorScheme.light(
+              primary: colors.primary,
+              secondary: colors.secondary,
+              surface: colors.surface,
+              error: colors.error,
+              onPrimary: Colors.white,
+              onSecondary: colors.foreground,
+              onSurface: colors.foreground,
+              onError: Colors.white,
+            ),
       dividerColor: colors.border,
       appBarTheme: AppBarTheme(
         backgroundColor: colors.surface,
@@ -29,10 +41,15 @@ class SetuTheme {
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: false,
-        systemOverlayStyle: SystemUiOverlayStyle.light.copyWith(
-          statusBarColor: Colors.transparent,
-          systemNavigationBarColor: colors.surface,
-        ),
+        systemOverlayStyle: isDark
+            ? SystemUiOverlayStyle.light.copyWith(
+                statusBarColor: Colors.transparent,
+                systemNavigationBarColor: colors.surface,
+              )
+            : SystemUiOverlayStyle.dark.copyWith(
+                statusBarColor: Colors.transparent,
+                systemNavigationBarColor: colors.surface,
+              ),
       ),
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
         backgroundColor: colors.surface,

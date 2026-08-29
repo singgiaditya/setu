@@ -29,6 +29,8 @@ class AppConstants {
   static const String keyTerminalCursorBlink = 'terminal_cursor_blink';
   static const String keyTerminalHapticFeedback = 'terminal_haptic_feedback';
   static const String keySavedSnippets = 'saved_terminal_snippets';
+  static const String keySavedCustomThemes = 'saved_custom_themes';
+  static const String keyActiveThemeId = 'active_theme_id';
 
   // Secure Storage Keys prefix
   static const String secureKeyPrefix = 'setu_ssh_key_';

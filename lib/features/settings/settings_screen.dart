@@ -183,6 +183,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final themeState = ref.watch(themeProvider);
     final colors = ref.watch(setuColorsProvider);
     final typography = ref.watch(setuTypographyProvider);
     final prefs = ref.read(preferencesStoreProvider);
@@ -243,24 +244,35 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             colors: colors,
             children: [
               ListTile(
-                leading: Icon(Icons.dark_mode_outlined, color: colors.primary, size: 22),
-                title: Text('Theme', style: typography.bodyMedium),
-                subtitle: Text('On|Bed Dark Mode (Dark only for now)', style: typography.bodySmall),
-                trailing: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: colors.surfaceVariant,
-                    borderRadius: BorderRadius.circular(6),
-                    border: Border.all(color: colors.border),
-                  ),
-                  child: Text(
-                    'Dark',
-                    style: typography.labelSmall.copyWith(
-                      color: colors.primary,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                leading: Icon(Icons.palette_outlined, color: colors.primary, size: 22),
+                title: Text('Theme & Colors', style: typography.bodyMedium),
+                subtitle: Text(
+                  '${themeState.themeName} (${themeState.isDark ? "Dark" : "Light"})',
+                  style: typography.bodySmall,
                 ),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: colors.primary.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(color: colors.primary),
+                      ),
+                      child: Text(
+                        themeState.themeName,
+                        style: typography.labelSmall.copyWith(
+                          color: colors.primary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    const Gap(6),
+                    const Icon(Icons.chevron_right_rounded, size: 20),
+                  ],
+                ),
+                onTap: () => context.push('/themes'),
               ),
               _buildDivider(colors),
               ListTile(

@@ -12,6 +12,9 @@ import '../../features/projects/projects_screen.dart';
 import '../../features/settings/settings_screen.dart';
 import '../../features/editor/editor_screen.dart';
 import '../../features/workspace/workspace_hub_screen.dart';
+import '../../features/theme/theme_selection_screen.dart';
+import '../../features/theme/custom_theme_editor_screen.dart';
+import '../../core/theme/models/custom_theme_model.dart';
 import '../widgets/setu_bottom_nav.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -36,6 +39,17 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/setup-guide',
         builder: (context, state) => const SetupGuideScreen(),
+      ),
+      GoRoute(
+        path: '/themes',
+        builder: (context, state) => const ThemeSelectionScreen(),
+      ),
+      GoRoute(
+        path: '/themes/edit',
+        builder: (context, state) {
+          final customTheme = state.extra as CustomThemeModel?;
+          return CustomThemeEditorScreen(initialTheme: customTheme);
+        },
       ),
       GoRoute(
         path: '/workspace/:id',

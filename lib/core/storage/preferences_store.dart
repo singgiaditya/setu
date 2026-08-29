@@ -175,4 +175,31 @@ class PreferencesStore {
   Future<void> saveSnippets(List<Map<String, dynamic>> snippets) async {
     await _prefs.setString(AppConstants.keySavedSnippets, jsonEncode(snippets));
   }
+
+  // Active Theme ID
+  String? get activeThemeId => _prefs.getString(AppConstants.keyActiveThemeId);
+
+  Future<void> setActiveThemeId(String? themeId) async {
+    if (themeId == null) {
+      await _prefs.remove(AppConstants.keyActiveThemeId);
+    } else {
+      await _prefs.setString(AppConstants.keyActiveThemeId, themeId);
+    }
+  }
+
+  // Saved Custom Themes JSON
+  List<Map<String, dynamic>> getSavedCustomThemes() {
+    final raw = _prefs.getString(AppConstants.keySavedCustomThemes);
+    if (raw == null || raw.isEmpty) return [];
+    try {
+      final list = jsonDecode(raw) as List;
+      return list.map((e) => Map<String, dynamic>.from(e)).toList();
+    } catch (_) {
+      return [];
+    }
+  }
+
+  Future<void> saveCustomThemes(List<Map<String, dynamic>> themes) async {
+    await _prefs.setString(AppConstants.keySavedCustomThemes, jsonEncode(themes));
+  }
 }
