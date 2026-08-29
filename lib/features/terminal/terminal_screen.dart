@@ -6,6 +6,7 @@ import '../../core/terminal/terminal_session.dart';
 import '../../core/theme/theme_manager.dart';
 import '../../providers/ssh_provider.dart';
 import '../../providers/terminal_provider.dart';
+import 'widgets/setu_terminal_view.dart';
 import 'widgets/terminal_keyboard_toolbar.dart';
 import 'widgets/terminal_tab_bar.dart';
 import 'widgets/tmux_session_sheet.dart';
@@ -403,14 +404,14 @@ class _TerminalScreenState extends ConsumerState<TerminalScreen> {
                           child: Container(
                             color: terminalSettings.theme.background,
                             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-                            child: TerminalView(
+                            child: SetuTerminalView(
                               activeSession.terminal,
                               focusNode: _terminalFocus,
                               autofocus: true,
                               theme: terminalTheme,
                               backgroundOpacity: 1.0,
                               deleteDetection: true,
-                              keyboardType: TextInputType.visiblePassword,
+                              keyboardType: TextInputType.text,
                               cursorType: _getCursorType(terminalSettings.cursorStyle),
                               textStyle: TerminalStyle(
                                 fontFamily: terminalSettings.fontFamily,

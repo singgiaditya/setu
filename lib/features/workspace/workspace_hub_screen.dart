@@ -13,6 +13,7 @@ import '../../providers/ssh_provider.dart';
 import '../../providers/terminal_provider.dart';
 import '../projects/models/project_model.dart';
 import '../projects/projects_screen.dart';
+import '../terminal/widgets/setu_terminal_view.dart';
 import '../terminal/widgets/terminal_keyboard_toolbar.dart';
 import 'widgets/git_branch_sheet.dart';
 import 'widgets/git_diff_sheet.dart';
@@ -528,14 +529,14 @@ class _WorkspaceHubScreenState extends ConsumerState<WorkspaceHubScreen>
             child: Container(
               color: terminalSettings.theme.background,
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-              child: TerminalView(
+              child: SetuTerminalView(
                 _workspaceSession!.terminal,
                 focusNode: _terminalFocus,
                 autofocus: true,
                 theme: terminalTheme,
                 backgroundOpacity: 1.0,
                 deleteDetection: true,
-                keyboardType: TextInputType.visiblePassword,
+                keyboardType: TextInputType.text,
                 cursorType: _getCursorType(terminalSettings.cursorStyle),
                 textStyle: TerminalStyle(
                   fontFamily: terminalSettings.fontFamily,
