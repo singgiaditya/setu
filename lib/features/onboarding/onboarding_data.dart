@@ -21,7 +21,7 @@ class OnboardingItem {
 const onboardingPages = [
   OnboardingItem(
     title: 'On|Bed',
-    subtitle: 'Your Machine, Anywhere.',
+    subtitle: 'Your Machine, Even in Bed.',
     description:
         'Access and control your Linux development workstation directly from your phone. Thin client architecture with zero cloud dependency.',
     icon: Icons.hub_rounded,

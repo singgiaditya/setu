@@ -126,7 +126,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with SingleTickerPr
 
                 // Tagline
                 Text(
-                  'Your Machine, Anywhere.',
+                  'Your Machine, Even in Bed.',
                   style: typography.bodyMedium.copyWith(
                     color: colors.foregroundMuted,
                     letterSpacing: 0.5,

@@ -594,7 +594,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ),
                 ),
                 title: Text('On|Bed', style: typography.titleSmall.copyWith(fontWeight: FontWeight.bold)),
-                subtitle: Text('Your Machine, Anywhere.', style: typography.bodySmall),
+                subtitle: Text('Your Machine, Even in Bed.', style: typography.bodySmall),
                 trailing: Text('v${AppConstants.appVersion}', style: typography.code.copyWith(color: colors.foregroundMuted)),
               ),
               _buildDivider(colors),

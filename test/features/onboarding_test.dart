@@ -29,7 +29,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('On|Bed'), findsWidgets);
-    expect(find.text('Your Machine, Anywhere.'), findsOneWidget);
+    expect(find.text('Your Machine, Even in Bed.'), findsOneWidget);
     expect(find.text('Next'), findsOneWidget);
     expect(find.text('Skip'), findsOneWidget);
   });

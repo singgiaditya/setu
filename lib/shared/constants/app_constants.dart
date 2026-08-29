@@ -1,6 +1,6 @@
 class AppConstants {
   static const String appName = 'On|Bed';
-  static const String appTagline = 'Your Machine, Anywhere.';
+  static const String appTagline = 'Your Machine, Even in Bed.';
   static const String appVersion = '0.2.0';
 
   // Defaults
