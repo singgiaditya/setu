@@ -21,7 +21,8 @@ class _ConnectionFormDialogState extends ConsumerState<ConnectionFormDialog> {
   late TextEditingController _hostController;
   late TextEditingController _portController;
   late TextEditingController _usernameController;
-  late TextEditingController _keyOrPassController;
+  late TextEditingController _privateKeyController;
+  late TextEditingController _passwordController;
   AuthMethod _authMethod = AuthMethod.privateKey;
   bool _isTesting = false;
   String? _testResult;
@@ -35,7 +36,8 @@ class _ConnectionFormDialogState extends ConsumerState<ConnectionFormDialog> {
     _hostController = TextEditingController(text: p?.host ?? '');
     _portController = TextEditingController(text: (p?.port ?? 22).toString());
     _usernameController = TextEditingController(text: p?.username ?? '');
-    _keyOrPassController = TextEditingController();
+    _privateKeyController = TextEditingController();
+    _passwordController = TextEditingController();
     _authMethod = p?.authMethod ?? AuthMethod.privateKey;
 
     _loadExistingCredentials();
@@ -45,13 +47,10 @@ class _ConnectionFormDialogState extends ConsumerState<ConnectionFormDialog> {
     if (widget.existingProfile != null) {
       final keyManager = ref.read(sshKeyManagerProvider);
       final id = widget.existingProfile!.id;
-      if (_authMethod == AuthMethod.privateKey) {
-        final key = await keyManager.getKey(id);
-        if (key != null) _keyOrPassController.text = key;
-      } else {
-        final pass = await keyManager.getPassword(id);
-        if (pass != null) _keyOrPassController.text = pass;
-      }
+      final key = await keyManager.getKey(id);
+      if (key != null) _privateKeyController.text = key;
+      final pass = await keyManager.getPassword(id);
+      if (pass != null) _passwordController.text = pass;
       if (mounted) setState(() {});
     }
   }
@@ -62,7 +61,8 @@ class _ConnectionFormDialogState extends ConsumerState<ConnectionFormDialog> {
     _hostController.dispose();
     _portController.dispose();
     _usernameController.dispose();
-    _keyOrPassController.dispose();
+    _privateKeyController.dispose();
+    _passwordController.dispose();
     super.dispose();
   }
 
@@ -84,11 +84,12 @@ class _ConnectionFormDialogState extends ConsumerState<ConnectionFormDialog> {
       createdAt: DateTime.now(),
     );
 
-    final cred = _keyOrPassController.text.trim();
+    final keyCred = _privateKeyController.text.trim();
+    final passCred = _passwordController.text.trim();
     final result = await sshService.connect(
       tempProfile,
-      privateKey: _authMethod == AuthMethod.privateKey ? cred : null,
-      password: _authMethod == AuthMethod.password ? cred : null,
+      privateKey: _authMethod == AuthMethod.privateKey ? keyCred : null,
+      password: _authMethod == AuthMethod.password ? passCred : null,
       timeout: const Duration(seconds: 8),
     );
 
@@ -121,11 +122,12 @@ class _ConnectionFormDialogState extends ConsumerState<ConnectionFormDialog> {
     );
 
     final keyManager = ref.read(sshKeyManagerProvider);
-    final cred = _keyOrPassController.text.trim();
+    final keyCred = _privateKeyController.text.trim();
+    final passCred = _passwordController.text.trim();
     if (_authMethod == AuthMethod.privateKey) {
-      if (cred.isNotEmpty) await keyManager.saveKey(id, cred);
+      if (keyCred.isNotEmpty) await keyManager.saveKey(id, keyCred);
     } else {
-      if (cred.isNotEmpty) await keyManager.savePassword(id, cred);
+      if (passCred.isNotEmpty) await keyManager.savePassword(id, passCred);
     }
 
     final notifier = ref.read(connectionProfilesProvider.notifier);
@@ -251,7 +253,7 @@ class _ConnectionFormDialogState extends ConsumerState<ConnectionFormDialog> {
                         children: const [
                           Icon(Icons.key_rounded, size: 16),
                           Gap(6),
-                          Text('SSH Key (Recommended)'),
+                          Text('SSH Key'),
                         ],
                       ),
                       selected: _authMethod == AuthMethod.privateKey,
@@ -281,30 +283,44 @@ class _ConnectionFormDialogState extends ConsumerState<ConnectionFormDialog> {
               ),
               const Gap(14),
 
-              // Private Key PEM / Password input
-              TextFormField(
-                controller: _keyOrPassController,
-                style: _authMethod == AuthMethod.privateKey ? typography.code : typography.bodyMedium,
-                obscureText: _authMethod == AuthMethod.password,
-                maxLines: _authMethod == AuthMethod.privateKey ? 5 : 1,
-                decoration: InputDecoration(
-                  labelText: _authMethod == AuthMethod.privateKey
-                      ? 'Private Key (PEM format)'
-                      : 'SSH Password',
-                  hintText: _authMethod == AuthMethod.privateKey
-                      ? '-----BEGIN OPENSSH PRIVATE KEY-----\n...\n-----END OPENSSH PRIVATE KEY-----'
-                      : 'Enter workstation password',
-                  alignLabelWithHint: true,
+              // Private Key PEM or Password input (Separate fields with independent state)
+              if (_authMethod == AuthMethod.privateKey)
+                TextFormField(
+                  key: const ValueKey('privateKeyField'),
+                  controller: _privateKeyController,
+                  style: typography.code,
+                  obscureText: false,
+                  maxLines: 5,
+                  decoration: const InputDecoration(
+                    labelText: 'Private Key (PEM format)',
+                    hintText: '-----BEGIN OPENSSH PRIVATE KEY-----\n...\n-----END OPENSSH PRIVATE KEY-----',
+                    alignLabelWithHint: true,
+                  ),
+                  validator: (v) {
+                    if (widget.existingProfile == null && (v == null || v.isEmpty)) {
+                      return 'Please enter or paste your private key';
+                    }
+                    return null;
+                  },
+                )
+              else
+                TextFormField(
+                  key: const ValueKey('passwordField'),
+                  controller: _passwordController,
+                  style: typography.bodyMedium,
+                  obscureText: true,
+                  maxLines: 1,
+                  decoration: const InputDecoration(
+                    labelText: 'SSH Password',
+                    hintText: 'Enter workstation password',
+                  ),
+                  validator: (v) {
+                    if (widget.existingProfile == null && (v == null || v.isEmpty)) {
+                      return 'Please enter your password';
+                    }
+                    return null;
+                  },
                 ),
-                validator: (v) {
-                  if (widget.existingProfile == null && (v == null || v.isEmpty)) {
-                    return _authMethod == AuthMethod.privateKey
-                        ? 'Please enter or paste your private key'
-                        : 'Please enter your password';
-                  }
-                  return null;
-                },
-              ),
               const Gap(16),
 
               // Test Result Box

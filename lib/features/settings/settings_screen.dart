@@ -323,41 +323,41 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               // Tab Size Toggle
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Tab Size', style: typography.bodyMedium),
-                        Text('Indentation spaces count', style: typography.bodySmall),
-                      ],
-                    ),
-                    SegmentedButton<int>(
-                      segments: const [
-                        ButtonSegment(value: 2, label: Text('2 spaces')),
-                        ButtonSegment(value: 4, label: Text('4 spaces')),
-                      ],
-                      selected: {_editorTabSize},
-                      onSelectionChanged: (newSelection) {
-                        final val = newSelection.first;
-                        setState(() => _editorTabSize = val);
-                        prefs.setEditorTabSize(val);
-                      },
-                      style: ButtonStyle(
-                        visualDensity: VisualDensity.compact,
-                        backgroundColor: WidgetStateProperty.resolveWith((states) {
-                          if (states.contains(WidgetState.selected)) {
-                            return colors.primary.withValues(alpha: 0.2);
-                          }
-                          return colors.surfaceVariant;
-                        }),
-                        foregroundColor: WidgetStateProperty.resolveWith((states) {
-                          if (states.contains(WidgetState.selected)) {
-                            return colors.primary;
-                          }
-                          return colors.foregroundMuted;
-                        }),
+                    Text('Tab Size', style: typography.bodyMedium),
+                    const Gap(2),
+                    Text('Indentation spaces count', style: typography.bodySmall),
+                    const Gap(10),
+                    SizedBox(
+                      width: double.infinity,
+                      child: SegmentedButton<int>(
+                        segments: const [
+                          ButtonSegment(value: 2, label: Text('2 spaces')),
+                          ButtonSegment(value: 4, label: Text('4 spaces')),
+                        ],
+                        selected: {_editorTabSize},
+                        onSelectionChanged: (newSelection) {
+                          final val = newSelection.first;
+                          setState(() => _editorTabSize = val);
+                          prefs.setEditorTabSize(val);
+                        },
+                        style: ButtonStyle(
+                          visualDensity: VisualDensity.compact,
+                          backgroundColor: WidgetStateProperty.resolveWith((states) {
+                            if (states.contains(WidgetState.selected)) {
+                              return colors.primary.withValues(alpha: 0.2);
+                            }
+                            return colors.surfaceVariant;
+                          }),
+                          foregroundColor: WidgetStateProperty.resolveWith((states) {
+                            if (states.contains(WidgetState.selected)) {
+                              return colors.primary;
+                            }
+                            return colors.foregroundMuted;
+                          }),
+                        ),
                       ),
                     ),
                   ],
@@ -470,40 +470,40 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               // Cursor Style Segmented Button
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Cursor Style', style: typography.bodyMedium),
-                        Text('Terminal cursor shape', style: typography.bodySmall),
-                      ],
-                    ),
-                    SegmentedButton<String>(
-                      segments: const [
-                        ButtonSegment(value: 'block', label: Text('Block')),
-                        ButtonSegment(value: 'underline', label: Text('Line')),
-                        ButtonSegment(value: 'bar', label: Text('Bar')),
-                      ],
-                      selected: {terminalSettings.cursorStyle},
-                      onSelectionChanged: (newSelection) {
-                        ref.read(terminalSettingsProvider.notifier).setCursorStyle(newSelection.first);
-                      },
-                      style: ButtonStyle(
-                        visualDensity: VisualDensity.compact,
-                        backgroundColor: WidgetStateProperty.resolveWith((states) {
-                          if (states.contains(WidgetState.selected)) {
-                            return colors.primary.withValues(alpha: 0.2);
-                          }
-                          return colors.surfaceVariant;
-                        }),
-                        foregroundColor: WidgetStateProperty.resolveWith((states) {
-                          if (states.contains(WidgetState.selected)) {
-                            return colors.primary;
-                          }
-                          return colors.foregroundMuted;
-                        }),
+                    Text('Cursor Style', style: typography.bodyMedium),
+                    const Gap(2),
+                    Text('Terminal cursor shape', style: typography.bodySmall),
+                    const Gap(10),
+                    SizedBox(
+                      width: double.infinity,
+                      child: SegmentedButton<String>(
+                        segments: const [
+                          ButtonSegment(value: 'block', label: Text('Block')),
+                          ButtonSegment(value: 'underline', label: Text('Line')),
+                          ButtonSegment(value: 'bar', label: Text('Bar')),
+                        ],
+                        selected: {terminalSettings.cursorStyle},
+                        onSelectionChanged: (newSelection) {
+                          ref.read(terminalSettingsProvider.notifier).setCursorStyle(newSelection.first);
+                        },
+                        style: ButtonStyle(
+                          visualDensity: VisualDensity.compact,
+                          backgroundColor: WidgetStateProperty.resolveWith((states) {
+                            if (states.contains(WidgetState.selected)) {
+                              return colors.primary.withValues(alpha: 0.2);
+                            }
+                            return colors.surfaceVariant;
+                          }),
+                          foregroundColor: WidgetStateProperty.resolveWith((states) {
+                            if (states.contains(WidgetState.selected)) {
+                              return colors.primary;
+                            }
+                            return colors.foregroundMuted;
+                          }),
+                        ),
                       ),
                     ),
                   ],
