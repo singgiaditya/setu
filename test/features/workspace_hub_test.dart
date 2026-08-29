@@ -44,7 +44,6 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('setu-workspace'), findsOneWidget);
-      expect(find.text('/home/singgi/Projects/setu'), findsOneWidget);
       expect(find.text('Files'), findsOneWidget);
       expect(find.text('Terminal'), findsOneWidget);
       expect(find.text('Git'), findsOneWidget);

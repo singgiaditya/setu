@@ -290,73 +290,127 @@ class _WorkspaceHubScreenState extends ConsumerState<WorkspaceHubScreen>
         final gitStatus = gitState.status ?? GitStatusResult.notRepo();
 
         return Scaffold(
-      backgroundColor: colors.background,
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded),
-          onPressed: () => context.pop(),
-        ),
-        title: Row(
-          children: [
-            Text(ws.emoji, style: const TextStyle(fontSize: 20)),
-            const Gap(8),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(ws.name, style: typography.titleSmall.copyWith(fontWeight: FontWeight.bold)),
-                  Text(
-                    ws.remotePath,
-                    style: typography.code.copyWith(fontSize: 10, color: colors.foregroundMuted),
+          backgroundColor: colors.background,
+          appBar: AppBar(
+            toolbarHeight: 44,
+            leadingWidth: 40,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back_rounded, size: 20),
+              visualDensity: VisualDensity.compact,
+              padding: EdgeInsets.zero,
+              onPressed: () => context.pop(),
+            ),
+            titleSpacing: 4,
+            title: Row(
+              children: [
+                Text(ws.emoji, style: const TextStyle(fontSize: 16)),
+                const Gap(6),
+                Flexible(
+                  child: Text(
+                    ws.name,
+                    style: typography.titleSmall.copyWith(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
                     overflow: TextOverflow.ellipsis,
                   ),
+                ),
+                if (gitStatus.isRepo) ...[
+                  const Gap(6),
+                  InkWell(
+                    onTap: () => _openBranchSheet(gitStatus, gitState.branches),
+                    borderRadius: BorderRadius.circular(4),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: colors.primary.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(4),
+                        border: Border.all(color: colors.primary.withValues(alpha: 0.3)),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.alt_route_rounded, size: 11, color: colors.primary),
+                          const Gap(3),
+                          Text(
+                            gitStatus.branch.isEmpty ? 'HEAD' : gitStatus.branch,
+                            style: TextStyle(
+                              fontFamily: 'JetBrainsMono',
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: colors.primary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ],
+              ],
+            ),
+            bottom: PreferredSize(
+              preferredSize: const Size.fromHeight(34),
+              child: Container(
+                height: 34,
+                decoration: BoxDecoration(
+                  color: colors.surface,
+                  border: Border(bottom: BorderSide(color: colors.border)),
+                ),
+                child: TabBar(
+                  controller: _tabController,
+                  indicatorColor: colors.primary,
+                  indicatorWeight: 2,
+                  indicatorSize: TabBarIndicatorSize.tab,
+                  labelColor: colors.primary,
+                  unselectedLabelColor: colors.foregroundMuted,
+                  labelPadding: EdgeInsets.zero,
+                  tabs: [
+                    Tab(
+                      height: 34,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.folder_outlined, size: 14),
+                          const Gap(5),
+                          Text('Files', style: typography.labelSmall.copyWith(fontSize: 11)),
+                        ],
+                      ),
+                    ),
+                    Tab(
+                      height: 34,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.terminal_outlined, size: 14),
+                          const Gap(5),
+                          Text('Terminal', style: typography.labelSmall.copyWith(fontSize: 11)),
+                        ],
+                      ),
+                    ),
+                    Tab(
+                      height: 34,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Badge(
+                            isLabelVisible: gitStatus.totalChanges > 0,
+                            label: Text('${gitStatus.totalChanges}', style: const TextStyle(fontSize: 9)),
+                            child: const Icon(Icons.commit_rounded, size: 14),
+                          ),
+                          const Gap(5),
+                          Text('Git', style: typography.labelSmall.copyWith(fontSize: 11)),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ],
-        ),
-        actions: [
-          if (gitStatus.isRepo)
-            ActionChip(
-              avatar: Icon(Icons.alt_route_rounded, size: 14, color: colors.primary),
-              label: Text(
-                gitStatus.branch.isEmpty ? 'HEAD' : gitStatus.branch,
-                style: typography.code.copyWith(fontSize: 11, fontWeight: FontWeight.bold),
-              ),
-              backgroundColor: colors.surfaceVariant,
-              side: BorderSide(color: colors.primary.withValues(alpha: 0.3)),
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              visualDensity: VisualDensity.compact,
-              onPressed: () => _openBranchSheet(gitStatus, gitState.branches),
-            ),
-          const Gap(8),
-        ],
-        bottom: TabBar(
-          controller: _tabController,
-          indicatorColor: colors.primary,
-          labelColor: colors.primary,
-          unselectedLabelColor: colors.foregroundMuted,
-          tabs: [
-            const Tab(
-              icon: Icon(Icons.folder_outlined, size: 18),
-              text: 'Files',
-            ),
-            const Tab(
-              icon: Icon(Icons.terminal_outlined, size: 18),
-              text: 'Terminal',
-            ),
-            Tab(
-              icon: Badge(
-                isLabelVisible: gitStatus.totalChanges > 0,
-                label: Text('${gitStatus.totalChanges}'),
-                child: const Icon(Icons.commit_rounded, size: 18),
-              ),
-              text: 'Git',
-            ),
-          ],
-        ),
-      ),
-      body: TabBarView(
+          ),
+          body: TabBarView(
         controller: _tabController,
         children: [
           // 1. Files Tab
