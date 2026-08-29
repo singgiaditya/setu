@@ -21,18 +21,7 @@ class ConnectionProfilesNotifier extends Notifier<List<ConnectionProfile>> {
     final prefs = ref.watch(preferencesStoreProvider);
     final rawProfiles = prefs.getSavedProfiles();
     if (rawProfiles.isEmpty) {
-      // Provide a helpful default starter profile
-      return [
-        ConnectionProfile(
-          id: 'default-workstation',
-          name: 'My Linux Workstation',
-          host: '100.100.100.10',
-          port: 22,
-          username: 'developer',
-          authMethod: AuthMethod.privateKey,
-          createdAt: DateTime.now(),
-        ),
-      ];
+      return [];
     }
     return rawProfiles.map((p) => ConnectionProfile.fromJson(p)).toList();
   }

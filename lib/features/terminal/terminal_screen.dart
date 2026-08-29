@@ -29,16 +29,6 @@ class _TerminalScreenState extends ConsumerState<TerminalScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _ensureSessionExists();
-    });
-  }
-
-  void _ensureSessionExists() {
-    final sessions = ref.read(terminalSessionsProvider);
-    if (sessions.isEmpty) {
-      ref.read(terminalSessionsProvider.notifier).createSession(name: 'main');
-    }
   }
 
   @override
@@ -337,81 +327,112 @@ class _TerminalScreenState extends ConsumerState<TerminalScreen> {
                 ),
               ),
 
-            // Main Terminal View with Pinch-to-Zoom & Horizontal Swipe
             Expanded(
-              child: activeSession != null
-                  ? GestureDetector(
-                      onScaleStart: (_) {
-                        _scaleBaseFontSize = terminalSettings.fontSize;
-                      },
-                      onScaleUpdate: (details) {
-                        if (details.scale != 1.0) {
-                          final newSize = (_scaleBaseFontSize * details.scale).clamp(9.0, 24.0);
-                          ref.read(terminalSettingsProvider.notifier).setFontSize(
-                                double.parse(newSize.toStringAsFixed(1)),
-                              );
-                        }
-                      },
-                      onHorizontalDragEnd: (details) {
-                        // Swipe left / right to switch tabs
-                        final vx = details.primaryVelocity ?? 0;
-                        if (vx < -300) {
-                          // Swipe left -> next tab
-                          _switchTab(1);
-                        } else if (vx > 300) {
-                          // Swipe right -> previous tab
-                          _switchTab(-1);
-                        }
-                      },
-                      child: Container(
-                        color: terminalSettings.theme.background,
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-                        child: TerminalView(
-                          activeSession.terminal,
-                          focusNode: _terminalFocus,
-                          autofocus: true,
-                          theme: terminalTheme,
-                          backgroundOpacity: 1.0,
-                          deleteDetection: true,
-                          keyboardType: TextInputType.visiblePassword,
-                          cursorType: _getCursorType(terminalSettings.cursorStyle),
-                          textStyle: TerminalStyle(
-                            fontFamily: terminalSettings.fontFamily,
-                            fontSize: terminalSettings.fontSize,
-                            height: 1.3,
-                          ),
+              child: sessions.isEmpty
+                  ? Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(32),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 72,
+                              height: 72,
+                              decoration: BoxDecoration(
+                                color: colors.surfaceVariant,
+                                shape: BoxShape.circle,
+                                border: Border.all(color: colors.border),
+                              ),
+                              child: Icon(Icons.terminal_rounded, size: 36, color: colors.foregroundMuted),
+                            ),
+                            const Gap(18),
+                            Text('No Terminal Sessions', style: typography.titleMedium),
+                            const Gap(8),
+                            Text(
+                              'Start a new shell session or attach to Tmux.',
+                              textAlign: TextAlign.center,
+                              style: typography.bodySmall.copyWith(color: colors.foregroundMuted),
+                            ),
+                            const Gap(24),
+                            FilledButton.icon(
+                              onPressed: () {
+                                ref.read(terminalSessionsProvider.notifier).createSession();
+                              },
+                              style: FilledButton.styleFrom(
+                                backgroundColor: colors.primary,
+                                foregroundColor: const Color(0xFF0D1117),
+                                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                              ),
+                              icon: const Icon(Icons.add_rounded, size: 18),
+                              label: const Text('New Terminal Session', style: TextStyle(fontWeight: FontWeight.bold)),
+                            ),
+                            const Gap(10),
+                            OutlinedButton.icon(
+                              onPressed: _openTmuxSheet,
+                              icon: const Icon(Icons.view_carousel_outlined, size: 16),
+                              label: const Text('Attach Tmux Session'),
+                            ),
+                          ],
                         ),
                       ),
                     )
-                  : Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.terminal_rounded, size: 48, color: colors.foregroundMuted),
-                          const Gap(12),
-                          Text('No active terminal sessions', style: typography.headlineSmall),
-                          const Gap(16),
-                          ElevatedButton.icon(
-                            onPressed: () {
-                              ref.read(terminalSessionsProvider.notifier).createSession();
-                            },
-                            icon: const Icon(Icons.add_rounded, size: 18),
-                            label: const Text('Open Terminal'),
+                  : activeSession != null
+                      ? GestureDetector(
+                          onScaleStart: (_) {
+                            _scaleBaseFontSize = terminalSettings.fontSize;
+                          },
+                          onScaleUpdate: (details) {
+                            if (details.scale != 1.0) {
+                              final newSize = (_scaleBaseFontSize * details.scale).clamp(9.0, 24.0);
+                              ref.read(terminalSettingsProvider.notifier).setFontSize(
+                                    double.parse(newSize.toStringAsFixed(1)),
+                                  );
+                            }
+                          },
+                          onHorizontalDragEnd: (details) {
+                            // Swipe left / right to switch tabs
+                            final vx = details.primaryVelocity ?? 0;
+                            if (vx < -300) {
+                              // Swipe left -> next tab
+                              _switchTab(1);
+                            } else if (vx > 300) {
+                              // Swipe right -> previous tab
+                              _switchTab(-1);
+                            }
+                          },
+                          child: Container(
+                            color: terminalSettings.theme.background,
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                            child: TerminalView(
+                              activeSession.terminal,
+                              focusNode: _terminalFocus,
+                              autofocus: true,
+                              theme: terminalTheme,
+                              backgroundOpacity: 1.0,
+                              deleteDetection: true,
+                              keyboardType: TextInputType.visiblePassword,
+                              cursorType: _getCursorType(terminalSettings.cursorStyle),
+                              textStyle: TerminalStyle(
+                                fontFamily: terminalSettings.fontFamily,
+                                fontSize: terminalSettings.fontSize,
+                                height: 1.3,
+                              ),
+                            ),
                           ),
-                        ],
-                      ),
-                    ),
+                        )
+                      : const SizedBox.shrink(),
             ),
 
             // Mobile Accessory Keyboard Toolbar
-            TerminalKeyboardToolbar(
-              session: activeSession,
-              colors: colors,
-              typography: typography,
-              onClear: () {
-                activeSession?.terminal.eraseDisplay();
-              },
-            ),
+            if (activeSession != null)
+              TerminalKeyboardToolbar(
+                session: activeSession,
+                colors: colors,
+                typography: typography,
+                onClear: () {
+                  activeSession.terminal.eraseDisplay();
+                },
+              ),
           ],
         ),
       ),

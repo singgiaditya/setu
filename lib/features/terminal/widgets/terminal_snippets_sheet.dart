@@ -11,10 +11,14 @@ import '../../../providers/terminal_snippet_provider.dart';
 
 class TerminalSnippetsSheet extends ConsumerStatefulWidget {
   final TerminalSessionItem? session;
+  final String? workspaceId;
+  final String? workspaceName;
 
   const TerminalSnippetsSheet({
     super.key,
     required this.session,
+    this.workspaceId,
+    this.workspaceName,
   });
 
   @override
@@ -24,6 +28,7 @@ class TerminalSnippetsSheet extends ConsumerStatefulWidget {
 class _TerminalSnippetsSheetState extends ConsumerState<TerminalSnippetsSheet> {
   String _searchQuery = '';
   String _selectedCategory = 'All';
+  String _scopeFilter = 'all'; // 'all', 'workspace', 'global'
 
   void _runSnippet(TerminalSnippet snippet) {
     if (widget.session == null) return;
@@ -44,11 +49,12 @@ class _TerminalSnippetsSheetState extends ConsumerState<TerminalSnippetsSheet> {
     final cmdCtrl = TextEditingController();
     String category = 'Custom';
     bool autoExec = true;
+    bool isWorkspaceScoped = widget.workspaceId != null;
 
     showDialog(
       context: context,
       builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setDialogState) {
+        builder: (dialogCtx, setDialogState) {
           final colors = ref.watch(setuColorsProvider);
           final typography = ref.watch(setuTypographyProvider);
 
@@ -75,7 +81,7 @@ class _TerminalSnippetsSheetState extends ConsumerState<TerminalSnippetsSheet> {
                     style: typography.bodyMedium,
                     decoration: const InputDecoration(
                       labelText: 'Title',
-                      hintText: 'e.g. Restart Docker App',
+                      hintText: 'e.g. Run Tests',
                     ),
                   ),
                   const Gap(12),
@@ -85,7 +91,7 @@ class _TerminalSnippetsSheetState extends ConsumerState<TerminalSnippetsSheet> {
                     maxLines: 2,
                     decoration: const InputDecoration(
                       labelText: 'Command',
-                      hintText: 'e.g. docker compose restart',
+                      hintText: 'e.g. npm test or cargo check',
                     ),
                   ),
                   const Gap(12),
@@ -96,13 +102,26 @@ class _TerminalSnippetsSheetState extends ConsumerState<TerminalSnippetsSheet> {
                     decoration: const InputDecoration(
                       labelText: 'Category',
                     ),
-                    items: ['Custom', 'Git', 'Docker', 'System', 'Tmux', 'General']
+                    items: ['Custom', 'Build', 'Test', 'Git', 'Docker', 'System', 'Tmux', 'General']
                         .map((c) => DropdownMenuItem(value: c, child: Text(c)))
                         .toList(),
                     onChanged: (val) {
                       if (val != null) setDialogState(() => category = val);
                     },
                   ),
+                  if (widget.workspaceId != null) ...[
+                    const Gap(12),
+                    SwitchListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: Text(
+                        'Save to ${widget.workspaceName ?? "this workspace"} only',
+                        style: typography.bodySmall,
+                      ),
+                      value: isWorkspaceScoped,
+                      activeTrackColor: colors.primary,
+                      onChanged: (val) => setDialogState(() => isWorkspaceScoped = val),
+                    ),
+                  ],
                   const Gap(12),
                   SwitchListTile(
                     contentPadding: EdgeInsets.zero,
@@ -116,7 +135,7 @@ class _TerminalSnippetsSheetState extends ConsumerState<TerminalSnippetsSheet> {
             ),
             actions: [
               TextButton(
-                onPressed: () => Navigator.of(ctx).pop(),
+                onPressed: () => Navigator.of(dialogCtx).pop(),
                 child: Text('Cancel', style: TextStyle(color: colors.foregroundMuted)),
               ),
               ElevatedButton(
@@ -132,9 +151,12 @@ class _TerminalSnippetsSheetState extends ConsumerState<TerminalSnippetsSheet> {
                     category: category,
                     autoExecute: autoExec,
                     createdAt: DateTime.now(),
+                    workspaceId: (widget.workspaceId != null && isWorkspaceScoped)
+                        ? widget.workspaceId
+                        : null,
                   );
                   ref.read(terminalSnippetsProvider.notifier).addSnippet(snippet);
-                  Navigator.of(ctx).pop();
+                  Navigator.of(dialogCtx).pop();
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: colors.primary,
@@ -153,19 +175,22 @@ class _TerminalSnippetsSheetState extends ConsumerState<TerminalSnippetsSheet> {
   Widget build(BuildContext context) {
     final colors = ref.watch(setuColorsProvider);
     final typography = ref.watch(setuTypographyProvider);
-    final snippets = ref.watch(terminalSnippetsProvider);
-    final categories = ref.watch(snippetCategoriesProvider);
+    final snippets = ref.watch(scopedSnippetsProvider(widget.workspaceId));
+    final categories = ref.watch(snippetCategoriesProvider(widget.workspaceId));
 
     final filtered = snippets.where((s) {
       final matchesCat = _selectedCategory == 'All' || s.category == _selectedCategory;
       final matchesSearch = _searchQuery.isEmpty ||
           s.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
           s.command.toLowerCase().contains(_searchQuery.toLowerCase());
-      return matchesCat && matchesSearch;
+      final matchesScope = _scopeFilter == 'all' ||
+          (_scopeFilter == 'workspace' && s.workspaceId == widget.workspaceId) ||
+          (_scopeFilter == 'global' && s.isGlobal);
+      return matchesCat && matchesSearch && matchesScope;
     }).toList();
 
     return Container(
-      height: MediaQuery.of(context).size.height * 0.7,
+      height: MediaQuery.of(context).size.height * 0.75,
       decoration: BoxDecoration(
         color: colors.surface,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
@@ -197,7 +222,12 @@ class _TerminalSnippetsSheetState extends ConsumerState<TerminalSnippetsSheet> {
                 children: [
                   Icon(Icons.bolt_rounded, color: colors.primary, size: 22),
                   const Gap(8),
-                  Text('Snippets & Quick Actions', style: typography.titleMedium),
+                  Text(
+                    widget.workspaceName != null
+                        ? '${widget.workspaceName} Snippets'
+                        : 'Snippets & Quick Actions',
+                    style: typography.titleMedium,
+                  ),
                 ],
               ),
               Row(
@@ -228,7 +258,55 @@ class _TerminalSnippetsSheetState extends ConsumerState<TerminalSnippetsSheet> {
             ),
             onChanged: (val) => setState(() => _searchQuery = val),
           ),
-          const Gap(10),
+          const Gap(8),
+
+          // Scope Filters (if inside workspace)
+          if (widget.workspaceId != null) ...[
+            SizedBox(
+              height: 28,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                children: [
+                  ChoiceChip(
+                    label: const Text('All Scopes'),
+                    selected: _scopeFilter == 'all',
+                    onSelected: (_) => setState(() => _scopeFilter = 'all'),
+                    labelStyle: typography.labelSmall.copyWith(
+                      color: _scopeFilter == 'all' ? const Color(0xFF0D1117) : colors.foreground,
+                    ),
+                    selectedColor: colors.accent,
+                    backgroundColor: colors.surfaceVariant,
+                    visualDensity: VisualDensity.compact,
+                  ),
+                  const Gap(6),
+                  ChoiceChip(
+                    label: Text(widget.workspaceName ?? 'Workspace'),
+                    selected: _scopeFilter == 'workspace',
+                    onSelected: (_) => setState(() => _scopeFilter = 'workspace'),
+                    labelStyle: typography.labelSmall.copyWith(
+                      color: _scopeFilter == 'workspace' ? const Color(0xFF0D1117) : colors.foreground,
+                    ),
+                    selectedColor: colors.primary,
+                    backgroundColor: colors.surfaceVariant,
+                    visualDensity: VisualDensity.compact,
+                  ),
+                  const Gap(6),
+                  ChoiceChip(
+                    label: const Text('Global'),
+                    selected: _scopeFilter == 'global',
+                    onSelected: (_) => setState(() => _scopeFilter = 'global'),
+                    labelStyle: typography.labelSmall.copyWith(
+                      color: _scopeFilter == 'global' ? const Color(0xFF0D1117) : colors.foreground,
+                    ),
+                    selectedColor: colors.primary,
+                    backgroundColor: colors.surfaceVariant,
+                    visualDensity: VisualDensity.compact,
+                  ),
+                ],
+              ),
+            ),
+            const Gap(8),
+          ],
 
           // Category Chips
           SizedBox(
@@ -276,12 +354,18 @@ class _TerminalSnippetsSheetState extends ConsumerState<TerminalSnippetsSheet> {
                     separatorBuilder: (_, _) => const Gap(8),
                     itemBuilder: (context, index) {
                       final snippet = filtered[index];
+                      final isWs = snippet.workspaceId != null && snippet.workspaceId!.isNotEmpty;
+
                       return Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                         decoration: BoxDecoration(
                           color: colors.surfaceVariant.withValues(alpha: 0.5),
                           borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: colors.border.withValues(alpha: 0.8)),
+                          border: Border.all(
+                            color: isWs
+                                ? colors.primary.withValues(alpha: 0.4)
+                                : colors.border.withValues(alpha: 0.8),
+                          ),
                         ),
                         child: Row(
                           children: [
@@ -299,15 +383,20 @@ class _TerminalSnippetsSheetState extends ConsumerState<TerminalSnippetsSheet> {
                                       Container(
                                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                         decoration: BoxDecoration(
-                                          color: colors.surface,
+                                          color: isWs
+                                              ? colors.primary.withValues(alpha: 0.2)
+                                              : colors.surface,
                                           borderRadius: BorderRadius.circular(4),
-                                          border: Border.all(color: colors.border),
+                                          border: Border.all(
+                                            color: isWs ? colors.primary : colors.border,
+                                          ),
                                         ),
                                         child: Text(
-                                          snippet.category,
+                                          isWs ? 'Workspace' : snippet.category,
                                           style: typography.code.copyWith(
                                             fontSize: 9,
-                                            color: colors.foregroundMuted,
+                                            color: isWs ? colors.primary : colors.foregroundMuted,
+                                            fontWeight: isWs ? FontWeight.bold : FontWeight.normal,
                                           ),
                                         ),
                                       ),
@@ -318,28 +407,35 @@ class _TerminalSnippetsSheetState extends ConsumerState<TerminalSnippetsSheet> {
                                     snippet.command,
                                     style: typography.code.copyWith(
                                       fontSize: 11,
-                                      color: colors.accent,
+                                      color: colors.primary,
                                     ),
-                                    maxLines: 1,
+                                    maxLines: 2,
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                 ],
                               ),
                             ),
                             const Gap(8),
-                            // Run Action
-                            ElevatedButton.icon(
-                              onPressed: () => _runSnippet(snippet),
-                              icon: const Icon(Icons.play_arrow_rounded, size: 16),
-                              label: Text(snippet.autoExecute ? 'Run' : 'Insert'),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: colors.primary,
-                                foregroundColor: const Color(0xFF0D1117),
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                                visualDensity: VisualDensity.compact,
-                                textStyle: typography.labelSmall.copyWith(fontWeight: FontWeight.bold),
+                            if (widget.session != null) ...[
+                              IconButton(
+                                icon: Icon(Icons.input_rounded, size: 18, color: colors.foregroundMuted),
+                                tooltip: 'Insert to terminal',
+                                onPressed: () {
+                                  widget.session!.writeInput(snippet.command);
+                                  Navigator.of(context).pop();
+                                },
                               ),
-                            ),
+                              FilledButton(
+                                onPressed: () => _runSnippet(snippet),
+                                style: FilledButton.styleFrom(
+                                  backgroundColor: colors.primary,
+                                  foregroundColor: const Color(0xFF0D1117),
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                  visualDensity: VisualDensity.compact,
+                                ),
+                                child: const Text('Run', style: TextStyle(fontWeight: FontWeight.bold)),
+                              ),
+                            ],
                           ],
                         ),
                       );

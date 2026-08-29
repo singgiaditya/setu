@@ -12,16 +12,7 @@ class ProjectsNotifier extends Notifier<List<ProjectModel>> {
     final prefs = ref.watch(preferencesStoreProvider);
     final raw = prefs.getSavedProjects();
     if (raw.isEmpty) {
-      return [
-        ProjectModel(
-          id: 'starter-1',
-          name: 'setu',
-          emoji: '🚀',
-          remotePath: '/home/singgi/Projects/setu',
-          lastOpened: DateTime.now(),
-          isFavorite: true,
-        ),
-      ];
+      return [];
     }
     return raw.map((p) => ProjectModel.fromJson(p)).toList();
   }
@@ -97,7 +88,7 @@ class ProjectsScreen extends ConsumerWidget {
               decoration: BoxDecoration(color: colors.border, shape: BoxShape.circle),
             ),
             const Gap(8),
-            Text('Projects', style: typography.titleMedium),
+            Text('Workspaces', style: typography.titleMedium),
           ],
         ),
       ),
@@ -113,7 +104,7 @@ class ProjectsScreen extends ConsumerWidget {
                   project: project,
                   onTap: () {
                     ref.read(projectsProvider.notifier).touchProject(project.id);
-                    context.go('/files');
+                    context.push('/workspace/${project.id}');
                   },
                   onLongPress: () => _showContextMenu(context, ref, project),
                   onFavoriteToggle: () {
@@ -127,7 +118,7 @@ class ProjectsScreen extends ConsumerWidget {
         backgroundColor: colors.primary,
         icon: const Icon(Icons.add_rounded, color: Color(0xFF0D1117)),
         label: Text(
-          'New Project',
+          'New Workspace',
           style: typography.labelLarge.copyWith(
             color: const Color(0xFF0D1117),
             fontWeight: FontWeight.bold,
@@ -159,12 +150,12 @@ class ProjectsScreen extends ConsumerWidget {
             ),
             const Gap(20),
             Text(
-              'No Projects Yet',
+              'No Workspaces Yet',
               style: typography.headlineSmall.copyWith(color: colors.foreground),
             ),
             const Gap(8),
             Text(
-              'Save project shortcuts for quick access to your remote workspaces.',
+              'Save workspace shortcuts for quick access to your remote development hubs.',
               textAlign: TextAlign.center,
               style: typography.bodyMedium.copyWith(color: colors.foregroundMuted),
             ),
@@ -177,7 +168,7 @@ class ProjectsScreen extends ConsumerWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               ),
               icon: const Icon(Icons.add_rounded, size: 18),
-              label: const Text('Add Project', style: TextStyle(fontWeight: FontWeight.bold)),
+              label: const Text('Add Workspace', style: TextStyle(fontWeight: FontWeight.bold)),
             ),
           ],
         ),

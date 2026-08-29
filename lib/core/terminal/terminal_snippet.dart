@@ -7,6 +7,7 @@ class TerminalSnippet extends Equatable {
   final String category;
   final bool autoExecute;
   final DateTime createdAt;
+  final String? workspaceId;
 
   const TerminalSnippet({
     required this.id,
@@ -15,7 +16,10 @@ class TerminalSnippet extends Equatable {
     this.category = 'General',
     this.autoExecute = true,
     required this.createdAt,
+    this.workspaceId,
   });
+
+  bool get isGlobal => workspaceId == null || workspaceId!.isEmpty;
 
   TerminalSnippet copyWith({
     String? id,
@@ -24,6 +28,8 @@ class TerminalSnippet extends Equatable {
     String? category,
     bool? autoExecute,
     DateTime? createdAt,
+    String? workspaceId,
+    bool clearWorkspaceId = false,
   }) {
     return TerminalSnippet(
       id: id ?? this.id,
@@ -32,6 +38,7 @@ class TerminalSnippet extends Equatable {
       category: category ?? this.category,
       autoExecute: autoExecute ?? this.autoExecute,
       createdAt: createdAt ?? this.createdAt,
+      workspaceId: clearWorkspaceId ? null : (workspaceId ?? this.workspaceId),
     );
   }
 
@@ -43,6 +50,7 @@ class TerminalSnippet extends Equatable {
       'category': category,
       'autoExecute': autoExecute,
       'createdAt': createdAt.toIso8601String(),
+      if (workspaceId != null) 'workspaceId': workspaceId,
     };
   }
 
@@ -56,11 +64,12 @@ class TerminalSnippet extends Equatable {
       createdAt: json['createdAt'] != null
           ? DateTime.tryParse(json['createdAt'] as String) ?? DateTime.now()
           : DateTime.now(),
+      workspaceId: json['workspaceId'] as String?,
     );
   }
 
   @override
-  List<Object?> get props => [id, title, command, category, autoExecute, createdAt];
+  List<Object?> get props => [id, title, command, category, autoExecute, createdAt, workspaceId];
 
   static List<TerminalSnippet> get defaultSnippets => [
         TerminalSnippet(

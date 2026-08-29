@@ -10,6 +10,7 @@ import '../../features/terminal/terminal_screen.dart';
 import '../../features/projects/projects_screen.dart';
 import '../../features/settings/settings_screen.dart';
 import '../../features/editor/editor_screen.dart';
+import '../../features/workspace/workspace_hub_screen.dart';
 import '../widgets/setu_bottom_nav.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -30,6 +31,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/connect',
         builder: (context, state) => const ConnectionScreen(),
+      ),
+      GoRoute(
+        path: '/workspace/:id',
+        builder: (context, state) {
+          final id = state.pathParameters['id'] ?? '';
+          return WorkspaceHubScreen(workspaceId: id);
+        },
       ),
       GoRoute(
         path: '/editor',

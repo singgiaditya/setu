@@ -54,8 +54,26 @@ final terminalSnippetsProvider =
   TerminalSnippetsNotifier.new,
 );
 
-final snippetCategoriesProvider = Provider<List<String>>((ref) {
-  final snippets = ref.watch(terminalSnippetsProvider);
+final scopedSnippetsProvider =
+    Provider.family<List<TerminalSnippet>, String?>((ref, workspaceId) {
+  final allSnippets = ref.watch(terminalSnippetsProvider);
+  if (workspaceId == null || workspaceId.isEmpty) {
+    return allSnippets.where((s) => s.isGlobal).toList();
+  }
+  return allSnippets
+      .where((s) => s.isGlobal || s.workspaceId == workspaceId)
+      .toList();
+});
+
+final workspaceOnlySnippetsProvider =
+    Provider.family<List<TerminalSnippet>, String>((ref, workspaceId) {
+  final allSnippets = ref.watch(terminalSnippetsProvider);
+  return allSnippets.where((s) => s.workspaceId == workspaceId).toList();
+});
+
+final snippetCategoriesProvider =
+    Provider.family<List<String>, String?>((ref, workspaceId) {
+  final snippets = ref.watch(scopedSnippetsProvider(workspaceId));
   final categories = <String>{'All'};
   for (final s in snippets) {
     categories.add(s.category);

@@ -46,7 +46,7 @@ void main() {
       );
 
       await tester.pumpAndSettle();
-      expect(find.text('Projects'), findsOneWidget);
+      expect(find.text('Workspaces'), findsOneWidget);
       expect(find.byType(FloatingActionButton), findsOneWidget);
     });
   });

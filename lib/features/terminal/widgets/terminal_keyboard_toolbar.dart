@@ -20,6 +20,8 @@ class TerminalKeyboardToolbar extends ConsumerStatefulWidget {
   final SetuColors colors;
   final SetuTypography typography;
   final VoidCallback? onClear;
+  final String? workspaceId;
+  final String? workspaceName;
 
   const TerminalKeyboardToolbar({
     super.key,
@@ -27,6 +29,8 @@ class TerminalKeyboardToolbar extends ConsumerStatefulWidget {
     required this.colors,
     required this.typography,
     this.onClear,
+    this.workspaceId,
+    this.workspaceName,
   });
 
   @override
@@ -198,7 +202,11 @@ class _TerminalKeyboardToolbarState extends ConsumerState<TerminalKeyboardToolba
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => TerminalSnippetsSheet(session: widget.session),
+      builder: (context) => TerminalSnippetsSheet(
+        session: widget.session,
+        workspaceId: widget.workspaceId,
+        workspaceName: widget.workspaceName,
+      ),
     );
   }
 

@@ -53,9 +53,9 @@ class SetuScaffoldWithNavBar extends ConsumerWidget {
               label: 'Terminal',
             ),
             NavigationDestination(
-              icon: Icon(Icons.code_rounded),
-              selectedIcon: Icon(Icons.code_rounded),
-              label: 'Projects',
+              icon: Icon(Icons.workspaces_outlined),
+              selectedIcon: Icon(Icons.workspaces_rounded),
+              label: 'Workspaces',
             ),
             NavigationDestination(
               icon: Icon(Icons.settings_outlined),

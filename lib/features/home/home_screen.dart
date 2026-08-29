@@ -177,7 +177,7 @@ class HomeScreen extends ConsumerWidget {
               ),
               const Gap(10),
 
-              // Recent Projects Horizontal Scroll
+              // Recent Workspaces Horizontal Scroll
               if (projects.isEmpty)
                 Container(
                   width: double.infinity,
@@ -189,14 +189,14 @@ class HomeScreen extends ConsumerWidget {
                   ),
                   child: Column(
                     children: [
-                      Icon(Icons.folder_open_rounded, size: 32, color: colors.foregroundMuted),
+                      Icon(Icons.workspaces_outlined, size: 32, color: colors.foregroundMuted),
                       const Gap(8),
-                      Text('No saved projects', style: typography.bodySmall),
+                      Text('No saved workspaces', style: typography.bodySmall),
                       const Gap(10),
                       TextButton.icon(
                         onPressed: () => context.go('/projects'),
                         icon: const Icon(Icons.add_rounded, size: 16),
-                        label: const Text('Add Project'),
+                        label: const Text('Add Workspace'),
                       ),
                     ],
                   ),
@@ -216,7 +216,7 @@ class HomeScreen extends ConsumerWidget {
                         projectPath: project.remotePath,
                         onTap: () {
                           ref.read(projectsProvider.notifier).touchProject(project.id);
-                          context.go('/files');
+                          context.push('/workspace/${project.id}');
                         },
                       );
                     },

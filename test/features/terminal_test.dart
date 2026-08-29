@@ -19,7 +19,7 @@ void main() {
   });
 
   group('TerminalScreen Widget Tests', () {
-    testWidgets('TerminalScreen renders terminal app bar and accessory toolbar',
+    testWidgets('TerminalScreen renders empty state when no sessions exist and spawns session on demand',
         (WidgetTester tester) async {
       SharedPreferences.setMockInitialValues({});
       final prefs = await PreferencesStore.init();
@@ -38,6 +38,14 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('SETU'), findsOneWidget);
+      expect(find.text('No Terminal Sessions'), findsOneWidget);
+      expect(find.text('New Terminal Session'), findsOneWidget);
+      expect(find.text('Attach Tmux Session'), findsOneWidget);
+
+      // Tap 'New Terminal Session'
+      await tester.tap(find.text('New Terminal Session'));
+      await tester.pumpAndSettle();
+
       expect(find.text('tmux'), findsOneWidget);
       expect(find.text('ESC'), findsOneWidget);
       expect(find.text('TAB'), findsOneWidget);

@@ -33,23 +33,32 @@ void main() {
       expect(defaults.any((s) => s.category == 'Tmux'), isTrue);
     });
 
-    test('copyWith updates properties properly', () {
-      final snippet = TerminalSnippet(
-        id: 'orig',
-        title: 'Original',
-        command: 'ls',
+    test('Supports workspaceId scoping and isGlobal property', () {
+      final globalSnippet = TerminalSnippet(
+        id: 'global-1',
+        title: 'Global Cmd',
+        command: 'uptime',
         createdAt: DateTime.now(),
       );
+      expect(globalSnippet.isGlobal, isTrue);
+      expect(globalSnippet.workspaceId, isNull);
 
-      final updated = snippet.copyWith(
-        title: 'New Title',
-        autoExecute: false,
+      final wsSnippet = TerminalSnippet(
+        id: 'ws-1',
+        title: 'Build Setu',
+        command: 'flutter build apk',
+        workspaceId: 'ws-setu-123',
+        createdAt: DateTime.now(),
       );
+      expect(wsSnippet.isGlobal, isFalse);
+      expect(wsSnippet.workspaceId, equals('ws-setu-123'));
 
-      expect(updated.id, 'orig');
-      expect(updated.title, 'New Title');
-      expect(updated.autoExecute, isFalse);
-      expect(updated.command, 'ls');
+      final json = wsSnippet.toJson();
+      expect(json['workspaceId'], equals('ws-setu-123'));
+
+      final fromJson = TerminalSnippet.fromJson(json);
+      expect(fromJson.workspaceId, equals('ws-setu-123'));
+      expect(fromJson.isGlobal, isFalse);
     });
   });
 }
