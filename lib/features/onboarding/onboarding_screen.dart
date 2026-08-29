@@ -51,7 +51,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'SETU',
+                    'On|Bed',
                     style: typography.brandSmall.copyWith(color: colors.primary),
                   ),
                   if (!isLastPage)

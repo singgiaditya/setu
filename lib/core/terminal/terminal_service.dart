@@ -44,7 +44,7 @@ class TerminalService {
     final sessionName = name ?? 'Session ${_sessions.length + 1}';
 
     if (!sshService.isConnected) {
-      terminal.write('\x1b[33m[SETU] Not connected to workstation.\x1b[0m\r\n');
+      terminal.write('\x1b[33m[On|Bed] Not connected to workstation.\x1b[0m\r\n');
       terminal.write('\x1b[90mConnect to your workstation first from the Workstations tab.\x1b[0m\r\n\r\n');
       final offlineSession = TerminalSessionItem(
         id: id,
@@ -147,7 +147,7 @@ class TerminalService {
     final id = const Uuid().v4();
 
     if (!sshService.isConnected) {
-      terminal.write('\x1b[33m[SETU] Not connected to workstation.\x1b[0m\r\n');
+      terminal.write('\x1b[33m[On|Bed] Not connected to workstation.\x1b[0m\r\n');
       final offlineSession = TerminalSessionItem(
         id: id,
         name: 'tmux:$tmuxSessionName',

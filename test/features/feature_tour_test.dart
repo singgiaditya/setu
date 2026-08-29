@@ -28,7 +28,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Check first slide
-      expect(find.text('SETU TOUR'), findsOneWidget);
+      expect(find.text('ON|BED TOUR'), findsOneWidget);
       expect(find.text('1/5'), findsOneWidget);
       expect(find.text('Lewati (Skip)'), findsOneWidget);
       expect(find.text('Workstation Remote SSH'), findsOneWidget);

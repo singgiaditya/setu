@@ -12,7 +12,7 @@ class SetuApp extends ConsumerWidget {
     final router = ref.watch(appRouterProvider);
 
     return MaterialApp.router(
-      title: 'SETU',
+      title: 'On|Bed',
       theme: themeState.themeData,
       routerConfig: router,
       debugShowCheckedModeBanner: false,

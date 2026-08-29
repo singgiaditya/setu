@@ -10,7 +10,7 @@ class SetupGuideData {
       category: SetupCategory.quickStart,
       title: 'Install OpenSSH Server',
       description:
-          'OpenSSH Server memungkinkan workstation Linux Anda menerima koneksi remote SSH yang aman dari aplikasi SETU.',
+          'OpenSSH Server memungkinkan workstation Linux Anda menerima koneksi remote SSH yang aman dari aplikasi On|Bed.',
       icon: Icons.download_rounded,
       distroSnippets: {
         'Arch / Omarchy': 'sudo pacman -S --needed openssh',
@@ -43,7 +43,7 @@ class SetupGuideData {
       category: SetupCategory.quickStart,
       title: 'Cek Alamat IP Komputer Anda',
       description:
-          'Ketahui alamat IP lokal workstation Anda pada jaringan WiFi/LAN untuk dimasukkan ke form koneksi SETU.',
+          'Ketahui alamat IP lokal workstation Anda pada jaringan WiFi/LAN untuk dimasukkan ke form koneksi On|Bed.',
       icon: Icons.lan_rounded,
       codeSnippet: 'ip -br a',
       tip: 'Cari interface WiFi (contoh: `wlan0`) atau Ethernet (`eth0` / `enp...`). Alamat IP biasanya berformat `192.168.x.x` atau `10.x.x.x`.',
@@ -69,10 +69,10 @@ class SetupGuideData {
       category: SetupCategory.tailscale,
       title: 'Dapatkan IP Tailscale Workstation',
       description:
-          'Gunakan perintah berikut di terminal workstation Anda untuk melihat IP Tailscale yang dapat diinputkan ke SETU:',
+          'Gunakan perintah berikut di terminal workstation Anda untuk melihat IP Tailscale yang dapat diinputkan ke On|Bed:',
       icon: Icons.badge_rounded,
       codeSnippet: 'tailscale ip -4',
-      tip: 'Masukkan IP ini pada kolom "Host / IP Address" di aplikasi SETU untuk koneksi remote dari mana pun.',
+      tip: 'Masukkan IP ini pada kolom "Host / IP Address" di aplikasi On|Bed untuk koneksi remote dari mana pun.',
     ),
 
     // 6. SSH Auth - Password Authentication
@@ -98,7 +98,7 @@ class SetupGuideData {
           'Untuk keamanan tingkat tinggi tanpa memasukkan password, daftarkan Public Key SSH ke file `authorized_keys` di workstation Anda:',
       icon: Icons.key_rounded,
       codeSnippet: 'mkdir -p ~/.ssh && chmod 700 ~/.ssh\ntouch ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys',
-      tip: 'Salin Public Key yang Anda miliki atau paste private key Anda langsung ke menu Secure Storage SETU.',
+      tip: 'Salin Public Key yang Anda miliki atau paste private key Anda langsung ke menu Secure Storage On|Bed.',
     ),
 
     // 8. SFTP & Neovim - SFTP Subsystem
@@ -108,7 +108,7 @@ class SetupGuideData {
       category: SetupCategory.sftpAndTools,
       title: 'Pastikan SFTP Subsystem Aktif',
       description:
-          'SETU menggunakan protokol SFTP untuk fitur File Explorer dan Code Editor. Pastikan baris subsystem SFTP tidak dikomentari di konfigurasi SSH Anda.',
+          'On|Bed menggunakan protokol SFTP untuk fitur File Explorer dan Code Editor. Pastikan baris subsystem SFTP tidak dikomentari di konfigurasi SSH Anda.',
       icon: Icons.folder_open_rounded,
       distroSnippets: {
         'Arch / Omarchy': 'grep -i "subsystem.*sftp" /etc/ssh/sshd_config || echo "Subsystem sftp /usr/lib/ssh/sftp-server" | sudo tee -a /etc/ssh/sshd_config',
@@ -122,12 +122,12 @@ class SetupGuideData {
       id: 'neovim_omarchy_tips',
       stepNumber: 9,
       category: SetupCategory.sftpAndTools,
-      title: 'Tips Penggunaan Neovim & Tmux di SETU',
+      title: 'Tips Penggunaan Neovim & Tmux di On|Bed',
       description:
-          'Terminal SETU dioptimalkan untuk editor terminal modern seperti Neovim dan Tmux di Arch Linux/Omarchy:',
+          'Terminal On|Bed dioptimalkan untuk editor terminal modern seperti Neovim dan Tmux di Arch Linux/Omarchy:',
       icon: Icons.terminal_rounded,
       codeSnippet: '# Pastikan terminfo xterm-256color terpasang\necho "export TERM=xterm-256color" >> ~/.bashrc\n\n# Pasang tmux jika belum ada\nsudo pacman -S --needed tmux neovim',
-      tip: 'Gunakan tombol Virtual D-Pad (Home, End, PgUp, PgDn, Esc, Ctrl+C) di toolbar keyboard SETU untuk navigasi Neovim yang sangat nyaman.',
+      tip: 'Gunakan tombol Virtual D-Pad (Home, End, PgUp, PgDn, Esc, Ctrl+C) di toolbar keyboard On|Bed untuk navigasi Neovim yang sangat nyaman.',
     ),
   ];
 

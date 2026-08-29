@@ -27,7 +27,7 @@ void main() {
       );
 
       await tester.pumpAndSettle();
-      expect(find.text('SETU'), findsOneWidget);
+      expect(find.text('On|Bed'), findsOneWidget);
       expect(find.text('QUICK ACTIONS'), findsOneWidget);
       expect(find.text('SYSTEM SUMMARY'), findsOneWidget);
     });

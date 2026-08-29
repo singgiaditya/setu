@@ -123,7 +123,7 @@ class _SystemScreenState extends ConsumerState<SystemScreen> {
       appBar: AppBar(
         title: Row(
           children: [
-            Text('SETU', style: typography.brandSmall.copyWith(color: colors.primary)),
+            Text('On|Bed', style: typography.brandSmall.copyWith(color: colors.primary)),
             const Gap(8),
             Container(width: 4, height: 4, decoration: BoxDecoration(color: colors.border, shape: BoxShape.circle)),
             const Gap(8),

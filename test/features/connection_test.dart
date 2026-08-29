@@ -58,12 +58,12 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      expect(find.text('SETU'), findsOneWidget);
+      expect(find.text('On|Bed'), findsOneWidget);
       expect(find.text('Workstations'), findsOneWidget);
       expect(find.text('Saved Workstations'), findsOneWidget);
       expect(find.text('No Workstations Configured'), findsOneWidget);
       expect(find.text('Panduan Setup Komputer Linux'), findsOneWidget);
-      expect(find.text('Jelajahi Panduan Fitur SETU'), findsOneWidget);
+      expect(find.text('Jelajahi Panduan Fitur On|Bed'), findsOneWidget);
     });
   });
 }

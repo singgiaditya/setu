@@ -37,7 +37,7 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      expect(find.text('SETU'), findsOneWidget);
+      expect(find.text('On|Bed'), findsOneWidget);
       expect(find.text('No Terminal Sessions'), findsOneWidget);
       expect(find.text('New Terminal Session'), findsOneWidget);
       expect(find.text('Attach Tmux Session'), findsOneWidget);

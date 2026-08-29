@@ -20,7 +20,7 @@ class OnboardingItem {
 
 const onboardingPages = [
   OnboardingItem(
-    title: 'SETU',
+    title: 'On|Bed',
     subtitle: 'Your Machine, Anywhere.',
     description:
         'Access and control your Linux development workstation directly from your phone. Thin client architecture with zero cloud dependency.',

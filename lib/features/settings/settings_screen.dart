@@ -193,7 +193,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       appBar: AppBar(
         title: Row(
           children: [
-            Text('SETU', style: typography.brandSmall.copyWith(color: colors.primary)),
+            Text('On|Bed', style: typography.brandSmall.copyWith(color: colors.primary)),
             const Gap(8),
             Container(
               width: 4,
@@ -245,7 +245,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ListTile(
                 leading: Icon(Icons.dark_mode_outlined, color: colors.primary, size: 22),
                 title: Text('Theme', style: typography.bodyMedium),
-                subtitle: Text('SETU Dark Mode (Dark only for now)', style: typography.bodySmall),
+                subtitle: Text('On|Bed Dark Mode (Dark only for now)', style: typography.bodySmall),
                 trailing: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
@@ -566,7 +566,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ListTile(
                 leading: Icon(Icons.explore_outlined, color: colors.accent, size: 22),
                 title: Text('App Feature Tour', style: typography.bodyMedium),
-                subtitle: Text('Putar ulang panduan fitur utama SETU', style: typography.bodySmall),
+                subtitle: Text('Putar ulang panduan fitur utama On|Bed', style: typography.bodySmall),
                 trailing: const Icon(Icons.chevron_right_rounded),
                 onTap: () => FeatureTourSheet.show(context, colors, typography),
               ),
@@ -589,11 +589,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ),
                   alignment: Alignment.center,
                   child: Text(
-                    'S',
+                    'O',
                     style: typography.brandSmall.copyWith(color: colors.primary),
                   ),
                 ),
-                title: Text('SETU', style: typography.titleSmall.copyWith(fontWeight: FontWeight.bold)),
+                title: Text('On|Bed', style: typography.titleSmall.copyWith(fontWeight: FontWeight.bold)),
                 subtitle: Text('Your Machine, Anywhere.', style: typography.bodySmall),
                 trailing: Text('v${AppConstants.appVersion}', style: typography.code.copyWith(color: colors.foregroundMuted)),
               ),

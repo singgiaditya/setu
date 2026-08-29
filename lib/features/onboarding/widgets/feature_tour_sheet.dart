@@ -148,7 +148,7 @@ class _FeatureTourSheetState extends State<FeatureTourSheet> {
                     Row(
                       children: [
                         Text(
-                          'SETU TOUR',
+                          'ON|BED TOUR',
                           style: typography.code.copyWith(
                             fontSize: 11,
                             fontWeight: FontWeight.bold,

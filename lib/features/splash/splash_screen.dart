@@ -57,7 +57,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with SingleTickerPr
     // Biometric check if enabled
     if (prefs.isBiometricEnabled) {
       final authResult = await biometricService.authenticate(
-        reason: 'Unlock SETU to access your workstations',
+        reason: 'Unlock On|Bed to access your workstations',
       );
       if (authResult.isFailure && mounted) {
         // Retry dialog or stay
@@ -115,10 +115,10 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with SingleTickerPr
 
                 // Brand Name (Space Grotesk)
                 Text(
-                  'SETU',
+                  'On|Bed',
                   style: typography.brand.copyWith(
                     fontSize: 34,
-                    letterSpacing: 4.0,
+                    letterSpacing: 3.0,
                     color: colors.foreground,
                   ),
                 ),

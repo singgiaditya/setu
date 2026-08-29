@@ -78,10 +78,10 @@ class SetuTerminalTheme {
     );
   }
 
-  // 1. Setu Dark (GitHub Dark Default)
+  // 1. On|Bed Dark (GitHub Dark Default)
   static const setuDark = SetuTerminalTheme(
     id: 'setu-dark',
-    name: 'SETU Dark',
+    name: 'On|Bed Dark',
     background: Color(0xFF0D1117),
     foreground: Color(0xFFE6EDF3),
     cursor: Color(0xFF58A6FF),

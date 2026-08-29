@@ -57,10 +57,10 @@ class HomeScreen extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'SETU',
+                        'On|Bed',
                         style: typography.brand.copyWith(
                           color: colors.primary,
-                          letterSpacing: 3.0,
+                          letterSpacing: 2.0,
                         ),
                       ),
                       const Gap(2),

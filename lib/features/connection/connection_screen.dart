@@ -94,7 +94,7 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
       appBar: AppBar(
         title: Row(
           children: [
-            Text('SETU', style: typography.brandSmall.copyWith(color: colors.primary)),
+            Text('On|Bed', style: typography.brandSmall.copyWith(color: colors.primary)),
             const Gap(8),
             Container(
               width: 4,
@@ -254,7 +254,7 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
                   onPressed: () => FeatureTourSheet.show(context, colors, typography),
                   icon: Icon(Icons.explore_outlined, size: 16, color: colors.accent),
                   label: Text(
-                    'Jelajahi Panduan Fitur SETU',
+                    'Jelajahi Panduan Fitur On|Bed',
                     style: typography.labelMedium.copyWith(
                       color: colors.accent,
                       fontWeight: FontWeight.w600,

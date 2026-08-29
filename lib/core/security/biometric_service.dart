@@ -17,7 +17,7 @@ class BiometricService {
     }
   }
 
-  Future<Result<bool>> authenticate({String reason = 'Authenticate to access SETU'}) async {
+  Future<Result<bool>> authenticate({String reason = 'Authenticate to access On|Bed'}) async {
     try {
       final available = await isBiometricAvailable();
       if (!available) {
