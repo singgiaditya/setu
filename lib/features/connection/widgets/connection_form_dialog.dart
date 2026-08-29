@@ -31,7 +31,7 @@ class _ConnectionFormDialogState extends ConsumerState<ConnectionFormDialog> {
   void initState() {
     super.initState();
     final p = widget.existingProfile;
-    _nameController = TextEditingController(text: p?.name ?? 'Linux Workstation');
+    _nameController = TextEditingController(text: p?.name ?? '');
     _hostController = TextEditingController(text: p?.host ?? '');
     _portController = TextEditingController(text: (p?.port ?? 22).toString());
     _usernameController = TextEditingController(text: p?.username ?? '');

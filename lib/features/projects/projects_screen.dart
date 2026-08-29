@@ -180,7 +180,7 @@ class ProjectsScreen extends ConsumerWidget {
     final colors = ref.read(setuColorsProvider);
     final typography = ref.read(setuTypographyProvider);
     final nameController = TextEditingController(text: existing?.name ?? '');
-    final pathController = TextEditingController(text: existing?.remotePath ?? '/home/');
+    final pathController = TextEditingController(text: existing?.remotePath ?? '');
     String selectedEmoji = existing?.emoji ?? '📁';
 
     showDialog(
@@ -193,7 +193,7 @@ class ProjectsScreen extends ConsumerWidget {
             side: BorderSide(color: colors.border),
           ),
           title: Text(
-            existing != null ? 'Edit Project' : 'Add Project',
+            existing != null ? 'Edit Workspace' : 'Add Workspace',
             style: typography.titleMedium,
           ),
           content: SingleChildScrollView(
@@ -227,7 +227,7 @@ class ProjectsScreen extends ConsumerWidget {
                   }).toList(),
                 ),
                 const Gap(16),
-                Text('Project Name', style: typography.labelSmall),
+                Text('Workspace Name', style: typography.labelSmall),
                 const Gap(6),
                 TextField(
                   controller: nameController,
