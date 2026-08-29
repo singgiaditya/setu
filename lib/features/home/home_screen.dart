@@ -7,6 +7,7 @@ import '../../core/theme/theme_manager.dart';
 import '../../features/connection/widgets/connection_status_indicator.dart';
 import '../../features/projects/projects_screen.dart';
 import '../../providers/ssh_provider.dart';
+import '../../providers/system_metrics_provider.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -35,9 +36,16 @@ class HomeScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: colors.background,
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
-          child: Column(
+        child: RefreshIndicator(
+          onRefresh: () async {
+            if (sshService.isConnected) {
+              await ref.read(systemMetricsProvider.notifier).fetchMetrics();
+            }
+          },
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+            child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Top Brand & Greeting Header
@@ -133,13 +141,49 @@ class HomeScreen extends ConsumerWidget {
               const Gap(24),
 
               // System Summary Bar
-              Text(
-                'SYSTEM SUMMARY',
-                style: typography.labelSmall.copyWith(
-                  letterSpacing: 1.2,
-                  color: colors.foregroundMuted,
-                  fontWeight: FontWeight.w700,
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'SYSTEM SUMMARY',
+                    style: typography.labelSmall.copyWith(
+                      letterSpacing: 1.2,
+                      color: colors.foregroundMuted,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  if (sshService.isConnected)
+                    Consumer(
+                      builder: (context, ref, _) {
+                        final metricsState = ref.watch(systemMetricsProvider);
+                        final uptime = metricsState.metrics?.uptime;
+                        return Row(
+                          children: [
+                            if (uptime != null && uptime.isNotEmpty) ...[
+                              Icon(Icons.schedule_rounded, size: 13, color: colors.foregroundMuted),
+                              const Gap(4),
+                              Text(
+                                'Up $uptime',
+                                style: typography.code.copyWith(fontSize: 10, color: colors.foregroundMuted),
+                              ),
+                              const Gap(8),
+                            ],
+                            InkWell(
+                              onTap: () => ref.read(systemMetricsProvider.notifier).fetchMetrics(),
+                              borderRadius: BorderRadius.circular(4),
+                              child: metricsState.isLoading
+                                  ? SizedBox(
+                                      width: 12,
+                                      height: 12,
+                                      child: CircularProgressIndicator(strokeWidth: 1.5, color: colors.primary),
+                                    )
+                                  : Icon(Icons.refresh_rounded, size: 14, color: colors.foregroundMuted),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                ],
               ),
               const Gap(10),
               _SystemSummaryBar(
@@ -226,8 +270,9 @@ class HomeScreen extends ConsumerWidget {
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }
 
 class _QuickActionButton extends StatelessWidget {
@@ -304,10 +349,12 @@ class _SystemSummaryBar extends StatelessWidget {
       builder: (context, ref, child) {
         final colors = ref.watch(setuColorsProvider);
         final typography = ref.watch(setuTypographyProvider);
+        final metricsState = ref.watch(systemMetricsProvider);
+        final metrics = metricsState.metrics;
 
-        final cpuValue = isConnected ? 0.22 : 0.0;
-        final memValue = isConnected ? 0.48 : 0.0;
-        final diskValue = isConnected ? 0.35 : 0.0;
+        final cpuValue = (isConnected && metrics != null) ? metrics.cpuPercentage : 0.0;
+        final memValue = (isConnected && metrics != null) ? metrics.memoryPercentage : 0.0;
+        final diskValue = (isConnected && metrics != null) ? metrics.diskPercentage : 0.0;
 
         return Container(
           padding: const EdgeInsets.all(14),
@@ -321,7 +368,12 @@ class _SystemSummaryBar extends StatelessWidget {
               Expanded(
                 child: _SystemMetricItem(
                   label: 'CPU',
-                  valueText: isConnected ? '${(cpuValue * 100).toInt()}%' : '--',
+                  valueText: (isConnected && metrics != null)
+                      ? '${(cpuValue * 100).toInt()}%'
+                      : (isConnected && metricsState.isLoading ? '...' : '--'),
+                  subtitle: (isConnected && metrics != null && metrics.loadAvg1m > 0)
+                      ? '${metrics.loadAvg1m.toStringAsFixed(2)} load'
+                      : null,
                   progress: cpuValue,
                   color: colors.primary,
                   typography: typography,
@@ -332,7 +384,12 @@ class _SystemSummaryBar extends StatelessWidget {
               Expanded(
                 child: _SystemMetricItem(
                   label: 'MEM',
-                  valueText: isConnected ? '${(memValue * 100).toInt()}%' : '--',
+                  valueText: (isConnected && metrics != null)
+                      ? '${(memValue * 100).toInt()}%'
+                      : (isConnected && metricsState.isLoading ? '...' : '--'),
+                  subtitle: (isConnected && metrics != null && metrics.formattedMemUsage.isNotEmpty)
+                      ? metrics.formattedMemUsage
+                      : null,
                   progress: memValue,
                   color: colors.accent,
                   typography: typography,
@@ -343,7 +400,12 @@ class _SystemSummaryBar extends StatelessWidget {
               Expanded(
                 child: _SystemMetricItem(
                   label: 'DISK',
-                  valueText: isConnected ? '${(diskValue * 100).toInt()}%' : '--',
+                  valueText: (isConnected && metrics != null)
+                      ? '${(diskValue * 100).toInt()}%'
+                      : (isConnected && metricsState.isLoading ? '...' : '--'),
+                  subtitle: (isConnected && metrics != null && metrics.formattedDiskUsage.isNotEmpty)
+                      ? metrics.formattedDiskUsage
+                      : null,
                   progress: diskValue,
                   color: colors.warning,
                   typography: typography,
@@ -361,6 +423,7 @@ class _SystemSummaryBar extends StatelessWidget {
 class _SystemMetricItem extends StatelessWidget {
   final String label;
   final String valueText;
+  final String? subtitle;
   final double progress;
   final Color color;
   final SetuTypography typography;
@@ -369,6 +432,7 @@ class _SystemMetricItem extends StatelessWidget {
   const _SystemMetricItem({
     required this.label,
     required this.valueText,
+    this.subtitle,
     required this.progress,
     required this.color,
     required this.typography,
@@ -378,7 +442,7 @@ class _SystemMetricItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -411,6 +475,18 @@ class _SystemMetricItem extends StatelessWidget {
               valueColor: AlwaysStoppedAnimation<Color>(color),
             ),
           ),
+          if (subtitle != null) ...[
+            const Gap(4),
+            Text(
+              subtitle!,
+              style: typography.code.copyWith(
+                fontSize: 9,
+                color: colors.foregroundMuted,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
         ],
       ),
     );
